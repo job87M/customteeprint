@@ -687,7 +687,7 @@
   const [contactName, setContactName] = useState('');
   const [contactEmail, setContactEmail] = useState('');
   // Fixed business WhatsApp number (customers do not edit this)
-  const BUSINESS_NUMBER = '07930951259';
+  const BUSINESS_NUMBER = '447930951259';
   const [needBy, setNeedBy] = useState('');
   const [printType, setPrintType] = useState('front'); // front | back | both
   const [projectDetails, setProjectDetails] = useState('');
@@ -798,7 +798,18 @@
         // Use the fixed business number and sanitize it for wa.me
         const raw = BUSINESS_NUMBER.toString();
         const sanitized = raw.replace(/[^0-9]/g, '');
-        const url = `https://wa.me/${sanitized}?text=${encoded}`;
+        // wa.me expects an international number without '+' and without leading zeros
+        const looksInternational = sanitized.length >= 9 && sanitized[0] !== '0';
+        let url;
+        if (looksInternational) {
+          url = `https://wa.me/${sanitized}?text=${encoded}`;
+        } else {
+          // Fallback: open WhatsApp web/app without preselected recipient
+          url = `https://wa.me/?text=${encoded}`;
+          // Inform the user so they can update BUSINESS_NUMBER to an international format
+          try { window.alert('Notice: business number is not in international format. The message will open without a preselected recipient. To send directly, update the BUSINESS_NUMBER in the app to international format (e.g. 447123456789).'); } catch (e) {}
+          console.warn('BUSINESS_NUMBER is not international-looking; opening wa.me without number. Value:', BUSINESS_NUMBER);
+        }
         window.open(url, '_blank');
       };
 
