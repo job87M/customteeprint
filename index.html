@@ -609,7 +609,7 @@
   <div id="root"></div>
 
   <script type="text/babel">
-    const { useState } = React;
+    const { useState, useEffect } = React;
 
     function App() {
       const [activeView, setActiveView] = useState('quote');
@@ -640,10 +640,54 @@
 
       const [quantities, setQuantities] = useState(makeInitialQuantities());
 
+      // Pricing loaded from prices.xml when available
+      const [priceData, setPriceData] = useState(null);
+
+      useEffect(() => {
+        // try to load prices.xml from the same folder
+        fetch('prices.xml')
+          .then(r => {
+            if (!r.ok) throw new Error('no prices.xml');
+            return r.text();
+          })
+          .then(text => {
+            try {
+              const parser = new DOMParser();
+              const xml = parser.parseFromString(text, 'application/xml');
+              const data = {};
+              const apparelNodes = xml.getElementsByTagName('apparel');
+              for (let i = 0; i < apparelNodes.length; i++) {
+                const a = apparelNodes[i];
+                const id = a.getAttribute('id');
+                if (!id) continue;
+                data[id] = {};
+                const priceNodes = a.getElementsByTagName('price');
+                for (let j = 0; j < priceNodes.length; j++) {
+                  const p = priceNodes[j];
+                  const printTypeAttr = p.getAttribute('print') || 'front';
+                  const sizeAttr = p.getAttribute('size') || 'base';
+                  const value = parseFloat(p.textContent.trim());
+                  data[id][printTypeAttr] = data[id][printTypeAttr] || {};
+                  data[id][printTypeAttr][sizeAttr] = value;
+                }
+              }
+              setPriceData(data);
+            } catch (err) {
+              console.warn('Failed to parse prices.xml', err);
+            }
+          })
+          .catch(() => {
+            // ignore — we'll use inline defaults
+            console.info('prices.xml not found or failed to load; using defaults');
+          });
+      }, []);
+
   // Contact / project fields
   const [orgName, setOrgName] = useState('');
   const [contactName, setContactName] = useState('');
   const [contactEmail, setContactEmail] = useState('');
+  // Fixed business WhatsApp number (customers do not edit this)
+  const BUSINESS_NUMBER = '012345678';
   const [needBy, setNeedBy] = useState('');
   const [printType, setPrintType] = useState('front'); // front | back | both
   const [projectDetails, setProjectDetails] = useState('');
@@ -671,18 +715,21 @@
         return apparels.reduce((sum, a) => sum + computeApparelTotal(a.id), 0);
       };
 
-      // Pricing rules (GBP)
-      // - Front only and Back only use the base per-item pricing
-      // - Front & Back uses separate (higher) per-item pricing as provided
+      // Pricing rules (GBP), loaded from prices.xml when available
+      // priceData structure: priceData[appId][printType][sizeCategory] => number
       const priceFor = (appId, size, pType = printType) => {
         const isLarge = ['3XL','4XL','5XL'].includes(size);
+        const sizeCat = isLarge ? 'large' : 'base';
+        if (priceData && priceData[appId] && priceData[appId][pType] && typeof priceData[appId][pType][sizeCat] === 'number') {
+          return priceData[appId][pType][sizeCat];
+        }
+        // fallback defaults (same as before)
         if (pType === 'both') {
           if (appId === 'tshirt') return isLarge ? 14.0 : 13.5;
           if (appId === 'sweater') return isLarge ? 19.5 : 21.0;
           if (appId === 'hoody') return isLarge ? 23.5 : 21.0;
           return 0;
         }
-        // front or back use base pricing
         if (appId === 'tshirt') return isLarge ? 9.0 : 8.5;
         if (appId === 'sweater') return isLarge ? 14.5 : 14.0;
         if (appId === 'hoody') return isLarge ? 16.5 : 16.0;
@@ -748,8 +795,10 @@
       const sendViaWhatsApp = () => {
         const text = buildWhatsAppMessage();
         const encoded = encodeURIComponent(text);
-        // wa.me with text param works both on mobile and desktop (opens WhatsApp web if available)
-        const url = `https://wa.me/?text=${encoded}`;
+        // Use the fixed business number and sanitize it for wa.me
+        const raw = BUSINESS_NUMBER.toString();
+        const sanitized = raw.replace(/[^0-9]/g, '');
+        const url = `https://wa.me/${sanitized}?text=${encoded}`;
         window.open(url, '_blank');
       };
 
@@ -904,6 +953,10 @@
                       <div>
                         <label style={{ display: 'block', fontWeight: 700, marginBottom: '0.25rem' }}>Email</label>
                         <input type="email" value={contactEmail} onChange={(e) => setContactEmail(e.target.value)} placeholder="email@example.com" style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }} />
+                      </div>
+                      <div>
+                        <label style={{ display: 'block', fontWeight: 700, marginBottom: '0.25rem' }}>WhatsApp will be sent to</label>
+                        <div style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ddd', background: '#fafafa' }}>{BUSINESS_NUMBER}</div>
                       </div>
                       <div>
                         <label style={{ display: 'block', fontWeight: 700, marginBottom: '0.25rem' }}>Need-by date</label>
