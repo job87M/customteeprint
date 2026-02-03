@@ -916,9 +916,7 @@
                           <option value="back">Back only</option>
                           <option value="both">Front & Back</option>
                         </select>
-                        <div style={{ fontSize: '0.9rem', color: 'var(--clay-brown)', marginTop: '0.5rem' }}>
-                          Pricing: Front only / Back only use base prices. Front & Back per-item prices — T-Shirt: £13.50 (XS–2XL) / £14.00 (3XL+); Sweater: £21.00 (XS–2XL) / £19.50 (3XL+); Hoody: £21.00 (XS–2XL) / £23.50 (3XL+).
-                        </div>
+                      
                       </div>
                       <div style={{ gridColumn: '1 / -1' }}>
                         <label style={{ display: 'block', fontWeight: 700, marginBottom: '0.25rem' }}>Project details (special requirements, colours, etc.)</label>
@@ -971,9 +969,7 @@
                     </table>
                   </div>
                   <div className="action-buttons" style={{ marginTop: '1rem' }}>
-                    <button className="btn btn-primary" onClick={() => { if (navigator.clipboard) navigator.clipboard.writeText(JSON.stringify({ meta: { orgName, contactName, contactEmail, needBy, printType, projectDetails }, quantities, totals: { items: computeOverallTotal(), price: computeGrandPriceTotal() } })); }}>
-                      Copy Quote JSON
-                    </button>
+                  
                     <button className="btn btn-primary" onClick={sendViaWhatsApp} style={{ minWidth: '200px' }}>
                       Send via WhatsApp
                     </button>
