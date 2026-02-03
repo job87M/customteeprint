@@ -612,7 +612,7 @@
     const { useState } = React;
 
     function App() {
-      const [activeView, setActiveView] = useState('design');
+      const [activeView, setActiveView] = useState('quote');
       const [designText, setDesignText] = useState('YOUR DESIGN HERE');
       const [subText, setSubText] = useState('Make it yours');
       const [shirtColor, setShirtColor] = useState('#2d5541');
@@ -620,6 +620,138 @@
       const [fontStyle, setFontStyle] = useState('bebas');
       const [showModal, setShowModal] = useState(false);
       const [selectedTemplate, setSelectedTemplate] = useState('none');
+
+      // Quote form state: sizes and apparel types
+      const sizes = ['XS','S','M','L','XL','2XL','3XL','4XL','5XL'];
+      const apparels = [
+        { id: 'tshirt', label: 'T-Shirt' },
+        { id: 'sweater', label: 'Sweater' },
+        { id: 'hoody', label: 'Hoody' }
+      ];
+
+      const makeInitialQuantities = () => {
+        const init = {};
+        apparels.forEach(a => {
+          init[a.id] = {};
+          sizes.forEach(s => init[a.id][s] = 0);
+        });
+        return init;
+      };
+
+      const [quantities, setQuantities] = useState(makeInitialQuantities());
+
+  // Contact / project fields
+  const [orgName, setOrgName] = useState('');
+  const [contactName, setContactName] = useState('');
+  const [contactEmail, setContactEmail] = useState('');
+  const [needBy, setNeedBy] = useState('');
+  const [printType, setPrintType] = useState('front'); // front | back | both
+  const [projectDetails, setProjectDetails] = useState('');
+
+      const handleQuantityChange = (appId, size, value) => {
+        const v = Math.max(0, parseInt(value || 0, 10));
+        setQuantities(prev => ({
+          ...prev,
+          [appId]: {
+            ...prev[appId],
+            [size]: Number.isNaN(v) ? 0 : v
+          }
+        }));
+      };
+
+      const computeApparelTotal = (appId) => {
+        return Object.values(quantities[appId] || {}).reduce((a,b) => a + Number(b || 0), 0);
+      };
+
+      const computeSizeTotal = (size) => {
+        return apparels.reduce((sum, a) => sum + Number(quantities[a.id][size] || 0), 0);
+      };
+
+      const computeOverallTotal = () => {
+        return apparels.reduce((sum, a) => sum + computeApparelTotal(a.id), 0);
+      };
+
+      // Pricing rules (GBP)
+      // - Front only and Back only use the base per-item pricing
+      // - Front & Back uses separate (higher) per-item pricing as provided
+      const priceFor = (appId, size, pType = printType) => {
+        const isLarge = ['3XL','4XL','5XL'].includes(size);
+        if (pType === 'both') {
+          if (appId === 'tshirt') return isLarge ? 14.0 : 13.5;
+          if (appId === 'sweater') return isLarge ? 19.5 : 21.0;
+          if (appId === 'hoody') return isLarge ? 23.5 : 21.0;
+          return 0;
+        }
+        // front or back use base pricing
+        if (appId === 'tshirt') return isLarge ? 9.0 : 8.5;
+        if (appId === 'sweater') return isLarge ? 14.5 : 14.0;
+        if (appId === 'hoody') return isLarge ? 16.5 : 16.0;
+        return 0;
+      };
+
+      const computeApparelPriceTotal = (appId) => {
+        return sizes.reduce((sum, size) => sum + (Number(quantities[appId][size] || 0) * priceFor(appId, size, printType)), 0);
+      };
+
+      const computeGrandPriceTotal = () => {
+        return apparels.reduce((sum, a) => sum + computeApparelPriceTotal(a.id), 0);
+      };
+
+      const formatGBP = (v) => '£' + Number(v || 0).toFixed(2);
+
+      const resetQuantities = () => setQuantities(makeInitialQuantities());
+
+      // Build a readable quote message for WhatsApp
+      const buildWhatsAppMessage = () => {
+        const lines = [];
+        lines.push('JOB87PRINT - Quote Request');
+        lines.push('');
+        if (orgName) lines.push(`Organisation: ${orgName}`);
+        if (contactName || contactEmail) {
+          const contactLine = `Contact: ${contactName || ''}${contactName && contactEmail ? ' - ' : ''}${contactEmail || ''}`;
+          lines.push(contactLine);
+        }
+        if (needBy) lines.push(`Need by: ${needBy}`);
+        if (printType) lines.push(`Print type: ${printType}`);
+        if (projectDetails) {
+          lines.push('Project details:');
+          lines.push(projectDetails);
+          lines.push('');
+        }
+        apparels.forEach(app => {
+          const qtyTotal = computeApparelTotal(app.id);
+          if (qtyTotal === 0) return;
+          lines.push(`${app.label}: ${qtyTotal} (${formatGBP(computeApparelPriceTotal(app.id))})`);
+          // list sizes with non-zero qty
+          sizes.forEach(size => {
+            const q = Number(quantities[app.id][size] || 0);
+            if (q > 0) lines.push(`  - ${size}: ${q} @ ${formatGBP(priceFor(app.id, size, printType))}`);
+          });
+          lines.push('');
+        });
+        lines.push(`Total items: ${computeOverallTotal()}`);
+        lines.push(`Indicative Grand total: ${formatGBP(computeGrandPriceTotal())}`);
+        lines.push('');
+        lines.push('I am aware the Grand total is indicative and also does not include delivery costs.');
+        lines.push('');
+        lines.push('Please get back to me with production lead time and payment details.');
+        lines.push('');
+        // Include requester/contact details again with pricing summary for clarity
+        const requester = [];
+        if (contactName) requester.push(`Requested by: ${contactName}`);
+        if (contactEmail) requester.push(`Email: ${contactEmail}`);
+        if (orgName) requester.push(`Organisation: ${orgName}`);
+        if (requester.length) lines.push(requester.join(' | '));
+        return lines.join('\n');
+      };
+
+      const sendViaWhatsApp = () => {
+        const text = buildWhatsAppMessage();
+        const encoded = encodeURIComponent(text);
+        // wa.me with text param works both on mobile and desktop (opens WhatsApp web if available)
+        const url = `https://wa.me/?text=${encoded}`;
+        window.open(url, '_blank');
+      };
 
 
         const templateDesigns = [
@@ -749,6 +881,111 @@
           </header>
 
           <main>
+            {activeView === 'quote' && (
+            <>
+                <div className="hero">
+                  <h1>CREATE YOUR MINISTRY PRINTS</h1>
+                  <p>From inspiring t-shirts to powerful event materials, we bring your ministry's message and vision to life.</p>
+                </div>
+              <div className="quote-section">
+                <h2 className="section-title">REQUEST A QUOTE</h2>
+                <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '1rem' }}>
+                  <p style={{ color: 'var(--clay-brown)', marginBottom: '1rem' }}>Specify quantities for each apparel and size. Totals per apparel and totals per size are calculated below.</p>
+                  <div style={{ marginBottom: '1rem', background: 'white', padding: '1rem', borderRadius: '6px', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                      <div>
+                        <label style={{ display: 'block', fontWeight: 700, marginBottom: '0.25rem' }}>Church / Organisation</label>
+                        <input type="text" value={orgName} onChange={(e) => setOrgName(e.target.value)} placeholder="Organisation name" style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }} />
+                      </div>
+                      <div>
+                        <label style={{ display: 'block', fontWeight: 700, marginBottom: '0.25rem' }}>Contact Name <span style={{ color: 'red' }}>*</span></label>
+                        <input type="text" value={contactName} onChange={(e) => setContactName(e.target.value)} placeholder="Full name" style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }} />
+                      </div>
+                      <div>
+                        <label style={{ display: 'block', fontWeight: 700, marginBottom: '0.25rem' }}>Email</label>
+                        <input type="email" value={contactEmail} onChange={(e) => setContactEmail(e.target.value)} placeholder="email@example.com" style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }} />
+                      </div>
+                      <div>
+                        <label style={{ display: 'block', fontWeight: 700, marginBottom: '0.25rem' }}>Need-by date</label>
+                        <input type="date" value={needBy} onChange={(e) => setNeedBy(e.target.value)} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }} />
+                      </div>
+                      <div style={{ gridColumn: '1 / -1' }}>
+                        <label style={{ display: 'block', fontWeight: 700, marginBottom: '0.25rem' }}>Print type</label>
+                        <select value={printType} onChange={(e) => setPrintType(e.target.value)} style={{ width: '260px', padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }}>
+                          <option value="front">Front only</option>
+                          <option value="back">Back only</option>
+                          <option value="both">Front & Back</option>
+                        </select>
+                        <div style={{ fontSize: '0.9rem', color: 'var(--clay-brown)', marginTop: '0.5rem' }}>
+                          Pricing: Front only / Back only use base prices. Front & Back per-item prices — T-Shirt: £13.50 (XS–2XL) / £14.00 (3XL+); Sweater: £21.00 (XS–2XL) / £19.50 (3XL+); Hoody: £21.00 (XS–2XL) / £23.50 (3XL+).
+                        </div>
+                      </div>
+                      <div style={{ gridColumn: '1 / -1' }}>
+                        <label style={{ display: 'block', fontWeight: 700, marginBottom: '0.25rem' }}>Project details (special requirements, colours, etc.)</label>
+                        <textarea value={projectDetails} onChange={(e) => setProjectDetails(e.target.value)} placeholder="Add any special instructions or colour requirements" style={{ width: '100%', minHeight: '80px', padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }} />
+                      </div>
+                    </div>
+                  </div>
+                  <div style={{ overflowX: 'auto' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                      <thead>
+                        <tr>
+                          <th style={{ textAlign: 'left', padding: '0.5rem 1rem' }}>Apparel / Size</th>
+                          {sizes.map(size => (
+                            <th key={size} style={{ padding: '0.5rem 1rem', textAlign: 'center' }}>{size}</th>
+                          ))}
+                          <th style={{ padding: '0.5rem 1rem', textAlign: 'center' }}>Qty Total</th>
+                          <th style={{ padding: '0.5rem 1rem', textAlign: 'center' }}>Amount</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {apparels.map(app => (
+                          <tr key={app.id}>
+                            <td style={{ padding: '0.5rem 1rem', fontWeight: 600 }}>{app.label}</td>
+                            {sizes.map(size => (
+                              <td key={size} style={{ padding: '0.25rem 0.5rem', textAlign: 'center' }}>
+                                <input
+                                  type="number"
+                                  min="0"
+                                  value={quantities[app.id][size]}
+                                  onChange={(e) => handleQuantityChange(app.id, size, e.target.value)}
+                                  style={{ width: '60px', padding: '6px', borderRadius: '3px', border: '1px solid #ccc' }}
+                                />
+                              </td>
+                            ))}
+                            <td style={{ padding: '0.5rem 1rem', textAlign: 'center', fontWeight: 700 }}>{computeApparelTotal(app.id)}</td>
+                            <td style={{ padding: '0.5rem 1rem', textAlign: 'center', fontWeight: 700 }}>{formatGBP(computeApparelPriceTotal(app.id))}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                      <tfoot>
+                        <tr>
+                          <td style={{ padding: '0.5rem 1rem', fontWeight: 700 }}>Total per Size</td>
+                          {sizes.map(size => (
+                            <td key={size} style={{ padding: '0.5rem 1rem', textAlign: 'center', fontWeight: 700 }}>{computeSizeTotal(size)}</td>
+                          ))}
+                          <td style={{ padding: '0.5rem 1rem', textAlign: 'center', fontWeight: 900 }}>{computeOverallTotal()}</td>
+                          <td style={{ padding: '0.5rem 1rem', textAlign: 'center', fontWeight: 900 }}>{formatGBP(computeGrandPriceTotal())}</td>
+                        </tr>
+                      </tfoot>
+                    </table>
+                  </div>
+                  <div className="action-buttons" style={{ marginTop: '1rem' }}>
+                    <button className="btn btn-primary" onClick={() => { if (navigator.clipboard) navigator.clipboard.writeText(JSON.stringify({ meta: { orgName, contactName, contactEmail, needBy, printType, projectDetails }, quantities, totals: { items: computeOverallTotal(), price: computeGrandPriceTotal() } })); }}>
+                      Copy Quote JSON
+                    </button>
+                    <button className="btn btn-primary" onClick={sendViaWhatsApp} style={{ minWidth: '200px' }}>
+                      Send via WhatsApp
+                    </button>
+                    <button className="btn btn-secondary" onClick={resetQuantities}>
+                      Reset
+                    </button>
+                  </div>
+                </div>
+              </div>
+              </>
+            )}
+
             {activeView === 'design' && (
               <>
                 <div className="hero">
