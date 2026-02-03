@@ -622,7 +622,7 @@
       const [selectedTemplate, setSelectedTemplate] = useState('none');
 
 
-       const templateDesigns = [
+        const templateDesigns = [
         { 
           id: 'none', 
           name: 'No Template', 
@@ -720,6 +720,12 @@
                 <div className="logo-subtitle">Custom Design & Print</div>
               </div>
               <nav>
+                 <button 
+                  className={activeView === 'quote' ? 'active' : ''}
+                  onClick={() => setActiveView('quote')}
+                >
+                  Job87Print
+                </button>
                 <button 
                   className={activeView === 'design' ? 'active' : ''}
                   onClick={() => setActiveView('design')}
