@@ -747,8 +747,10 @@
       }
 
       .header-content {
-        flex-direction: column;
+        /* keep header items on a single row so logo stays left and hamburger right */
+        flex-direction: row;
         gap: 1rem;
+        align-items: center;
       }
 
       /* Hide full nav on smaller screens, show compact hamburger */
@@ -757,6 +759,7 @@
         width: 100%;
         justify-content: center;
         flex-wrap: wrap;
+        margin: 0 auto; /* keep nav centered when visible on larger screens */
       }
 
       .hamburger {
