@@ -1121,6 +1121,35 @@
         window.open(url, '_blank');
       };
 
+      // Send current design details to business WhatsApp number
+      const sendDesignViaWhatsApp = () => {
+        const lines = [];
+        lines.push('JOB87PRINT - Design Order');
+        lines.push('');
+        lines.push(`Design Text: ${designText || '(none)'}`);
+        if (subText) lines.push(`Subtitle: ${subText}`);
+        lines.push(`Font: ${fontStyle}`);
+        const templateName = templateDesigns.find(t => t.id === selectedTemplate)?.name || 'No Template';
+        lines.push(`Template: ${templateName}`);
+        const shirtColorName = (shirtColors.find(c => c.value === shirtColor) || {}).name || shirtColor;
+        lines.push(`Shirt Color: ${shirtColorName} (${shirtColor})`);
+        const textColorName = (textColors.find(c => c.value === textColor) || {}).name || textColor;
+        lines.push(`Text Color: ${textColorName} (${textColor})`);
+        if (projectDetails) {
+          lines.push('');
+          lines.push('Project details:');
+          lines.push(projectDetails);
+        }
+        lines.push('');
+        lines.push('Please provide a quote and lead time for this design. Thank you!');
+
+        const text = lines.join('\n');
+        const encoded = encodeURIComponent(text);
+        const sanitized = BUSINESS_NUMBER.toString().replace(/[^0-9]/g, '');
+        const url = `https://wa.me/${sanitized}?text=${encoded}`;
+        window.open(url, '_blank');
+      };
+
       const templateDesigns = [
         { id: 'none', name: 'No Template', url: '' },
         { id: 'cross', name: 'Cross Design', url: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"%3E%3Cpath stroke="white" stroke-width="12" fill="none" d="M100 20 L100 180 M20 100 L180 100"/%3E%3C/svg%3E' },
@@ -1274,9 +1303,9 @@
                         </div>
                       </div>
                       <div className="action-buttons">
-                        <button className="btn btn-primary" onClick={() => setActiveView('quote')}>Order Now</button>
-                        <button className="btn btn-secondary" onClick={() => setShowModal(true)}>Save Design</button>
+                        <button className="btn btn-primary" onClick={sendDesignViaWhatsApp}>Send via WhatsApp</button>
                       </div>
+                      <p>We'll send your design details and will get back to you with a mockup</p>
                     </div>
                   </div>
                 </div>
@@ -1361,7 +1390,7 @@
                       <button className="btn btn-secondary" onClick={resetQuantities}>Reset</button>
                     </div>
                     <p style={{marginTop: '30px'}}>** Please take note that the total price is indicative only and also does not include delivery cost.</p>
-                    <p style={{marginTop: '30px'}}>** We'll be in touch as soon as we receive your request via the WhatsApp message</p>
+                    <p>** We'll be in touch as soon as we receive your request via the WhatsApp message</p>
 
                   </div>
                   
@@ -1402,7 +1431,7 @@
                   <p style={{ fontSize: '1.1rem', color: 'var(--text-secondary)', marginBottom: '3rem', lineHeight: 1.8 }}>
                     From concept to creation, our commitment to excellence ensures your message reaches hearts and minds. Let's create something meaningful together.
                   </p>
-                  <button className="btn btn-primary" onClick={() => setActiveView('design')}>Start Creating</button>
+                  <button className="btn btn-primary" onClick={() => setActiveView('quote')}>Get a Quote</button>
                 </div>
               </div>
             )}
