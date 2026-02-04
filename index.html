@@ -603,6 +603,87 @@
       color: var(--clay-brown);
       margin-bottom: 1.5rem;
     }
+
+    /* Responsive tweaks */
+    @media (max-width: 968px) {
+      .header-content {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+      }
+
+      .logo {
+        font-size: 2.4rem;
+      }
+
+      nav {
+        width: 100%;
+        justify-content: center;
+        order: 3;
+        gap: 1rem;
+      }
+
+      .hero h1 {
+        font-size: 2.4rem;
+      }
+
+      .design-studio {
+        grid-template-columns: 1fr;
+      }
+
+      .tshirt-canvas {
+        padding: 2rem;
+      }
+
+      .tshirt-preview {
+        min-height: auto;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .logo {
+        font-size: 2rem;
+      }
+
+      .hero h1 {
+        font-size: 1.8rem;
+      }
+
+      .design-text {
+        font-size: 1.4rem;
+      }
+
+      .tshirt-canvas {
+        padding: 1rem;
+        max-width: 280px;
+      }
+
+      .controls-panel {
+        padding: 1rem;
+      }
+
+      .btn-primary, .btn-secondary {
+        min-width: auto;
+        padding: 0.75rem 1rem;
+        font-size: 0.95rem;
+      }
+
+      /* Make table inputs more usable on small screens and allow horizontal scroll */
+      .quote-section .tshirt-canvas { max-width: 260px; }
+      .quote-section table { font-size: 0.9rem; }
+      .quote-section table input[type="number"] { width: 44px; }
+      .quote-section table select { padding: 4px; }
+
+      /* Adjust color swatch size */
+      .quote-section td div > div { width: 14px; height: 14px; }
+    }
+
+    @media (max-width: 420px) {
+      nav { gap: 0.5rem; }
+      .section-title { font-size: 1.8rem; }
+      .gallery-grid { gap: 1rem; }
+      .quote-section table input[type="number"] { width: 36px; }
+    }
   </style>
 </head>
 <body>
