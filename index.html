@@ -3,22 +3,28 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>JOB87PRINT - Custom T-Shirt Design & Print</title>
+  <title>JOB87PRINT - Custom Design & Print Studio</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Work+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Syne:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
   <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <style>
     :root {
-      --ink-black: #1a1a1a;
-      --paper-cream: #faf8f3;
-      --rust-orange: #d4682f;
-      --forest-green: #2d5541;
-      --clay-brown: #8b6f5c;
-      --soft-blue: #7ba3b8;
-      --highlight: #ffd97d;
+      --dark: #0f1419;
+      --darker: #0a0d12;
+      --light: #ffffff;
+      --accent-primary: #6366f1;
+      --accent-secondary: #ec4899;
+      --accent-tertiary: #06b6d4;
+      --text-primary: #f1f5f9;
+      --text-secondary: #cbd5e1;
+      --text-tertiary: #94a3b8;
+      --surface: #1e293b;
+      --surface-light: #334155;
+      --border: #475569;
+      --success: #10b981;
     }
 
     * {
@@ -27,14 +33,19 @@
       box-sizing: border-box;
     }
 
-    body {
-      font-family: 'Work Sans', sans-serif;
-      background-color: var(--paper-cream);
-      color: var(--ink-black);
-      overflow-x: hidden;
+    html {
+      scroll-behavior: smooth;
     }
 
-    /* Noise texture overlay */
+    body {
+      font-family: 'Space Grotesk', sans-serif;
+      background: linear-gradient(135deg, var(--darker) 0%, var(--dark) 100%);
+      color: var(--text-primary);
+      overflow-x: hidden;
+      line-height: 1.6;
+    }
+
+    /* Animated gradient background */
     body::before {
       content: '';
       position: fixed;
@@ -42,10 +53,10 @@
       left: 0;
       width: 100%;
       height: 100%;
-      opacity: 0.03;
-      z-index: 9999;
+      background: radial-gradient(circle at 20% 50%, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
+                  radial-gradient(circle at 80% 80%, rgba(236, 72, 153, 0.1) 0%, transparent 50%);
       pointer-events: none;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+      z-index: -1;
     }
 
     .app-container {
@@ -53,63 +64,92 @@
       position: relative;
     }
 
-    /* Header */
+    /* ===== HEADER ===== */
     header {
-      background: var(--ink-black);
-      color: var(--paper-cream);
-      padding: 2rem 2rem 3rem;
-      position: relative;
-      overflow: hidden;
-    }
-
-    header::after {
-      content: '';
-      position: absolute;
-      bottom: -2px;
-      left: 0;
-      width: 100%;
-      height: 20px;
-      background: repeating-linear-gradient(
-        45deg,
-        var(--rust-orange),
-        var(--rust-orange) 10px,
-        var(--forest-green) 10px,
-        var(--forest-green) 20px
-      );
-      animation: slideStripes 20s linear infinite;
-    }
-
-    @keyframes slideStripes {
-      0% { transform: translateX(0); }
-      100% { transform: translateX(28px); }
+      background: rgba(15, 20, 25, 0.8);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(99, 102, 241, 0.2);
+      padding: 1.2rem 2rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
     }
 
     .header-content {
-      max-width: 1400px;
+      max-width: 1600px;
       margin: 0 auto;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      flex-wrap: wrap;
-      gap: 1.5rem;
+      gap: 2rem;
     }
 
     .logo {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 3.5rem;
-      letter-spacing: 0.05em;
-      line-height: 1;
-      position: relative;
-      animation: fadeInDown 0.8s ease-out;
+      font-family: 'Syne', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -1px;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
     }
 
-    .logo-subtitle {
-      font-family: 'Crimson Text', serif;
+    .logo-icon {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+    }
+
+    nav {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    nav button {
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      font-family: 'Space Grotesk', sans-serif;
       font-size: 0.9rem;
-      font-style: italic;
-      letter-spacing: 0.1em;
-      opacity: 0.8;
-      margin-top: 0.3rem;
+      font-weight: 500;
+      cursor: pointer;
+      padding: 0.6rem 1.2rem;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    nav button:hover {
+      color: var(--accent-primary);
+      background: rgba(99, 102, 241, 0.1);
+    }
+
+    nav button.active {
+      color: var(--accent-primary);
+      background: rgba(99, 102, 241, 0.2);
+      border: 1px solid rgba(99, 102, 241, 0.5);
+    }
+
+    /* ===== MAIN CONTENT ===== */
+    main {
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    .hero {
+      text-align: center;
+      margin-bottom: 3rem;
+      animation: fadeInDown 0.8s ease-out;
     }
 
     @keyframes fadeInDown {
@@ -123,69 +163,10 @@
       }
     }
 
-    nav {
-      display: flex;
-      gap: 2rem;
-      animation: fadeIn 1s ease-out 0.3s both;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-
-    nav button {
-      background: none;
-      border: none;
-      color: var(--paper-cream);
-      font-family: 'Work Sans', sans-serif;
-      font-size: 0.95rem;
-      font-weight: 500;
-      cursor: pointer;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      position: relative;
-      padding: 0.5rem 0;
-      transition: color 0.3s;
-    }
-
-    nav button::after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      width: 0;
-      height: 2px;
-      background: var(--rust-orange);
-      transition: width 0.3s ease;
-    }
-
-    nav button:hover::after,
-    nav button.active::after {
-      width: 100%;
-    }
-
-    nav button:hover {
-      color: var(--rust-orange);
-    }
-
-    /* Main Content */
-    main {
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 3rem 2rem;
-    }
-
-    .hero {
-      text-align: center;
-      margin-bottom: 4rem;
-      animation: fadeInUp 0.8s ease-out 0.5s both;
-    }
-
     @keyframes fadeInUp {
       from {
         opacity: 0;
-        transform: translateY(30px);
+        transform: translateY(20px);
       }
       to {
         opacity: 1;
@@ -194,94 +175,109 @@
     }
 
     .hero h1 {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 4rem;
-      letter-spacing: 0.03em;
-      line-height: 1.1;
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 700;
       margin-bottom: 1rem;
-      color: var(--ink-black);
+      letter-spacing: -1px;
+      background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent-primary) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
 
     .hero p {
-      font-family: 'Crimson Text', serif;
-      font-size: 1.3rem;
-      color: var(--clay-brown);
+      font-size: 1.1rem;
+      color: var(--text-secondary);
       max-width: 600px;
       margin: 0 auto;
       line-height: 1.6;
     }
 
-    /* Design Studio */
+    /* ===== DESIGN STUDIO ===== */
     .design-studio {
       display: grid;
-      grid-template-columns: 1fr 1.2fr;
-      gap: 3rem;
+      grid-template-columns: 1fr 1.3fr;
+      gap: 2.5rem;
       margin-bottom: 4rem;
-      animation: fadeIn 0.8s ease-out 0.7s both;
+      animation: fadeInUp 0.8s ease-out 0.2s both;
     }
 
-    @media (max-width: 968px) {
+    @media (max-width: 1024px) {
       .design-studio {
         grid-template-columns: 1fr;
       }
     }
 
     .controls-panel {
-      background: white;
-      padding: 2.5rem;
-      border-radius: 3px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-      border-top: 4px solid var(--rust-orange);
+      background: rgba(30, 41, 59, 0.8);
+      backdrop-filter: blur(20px);
+      padding: 2rem;
+      border-radius: 16px;
+      border: 1px solid rgba(99, 102, 241, 0.2);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      max-height: fit-content;
     }
 
     .control-group {
-      margin-bottom: 2rem;
-    }
-
-    .control-group:last-child {
-      margin-bottom: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
     }
 
     .control-group label {
-      display: block;
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 1.1rem;
-      letter-spacing: 0.05em;
-      color: var(--ink-black);
-      margin-bottom: 0.8rem;
+      font-family: 'Syne', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
 
     .control-group input[type="text"],
+    .control-group input[type="email"],
+    .control-group input[type="date"],
     .control-group textarea,
     .control-group select {
       width: 100%;
-      padding: 0.9rem;
-      border: 2px solid #e0e0e0;
-      border-radius: 3px;
-      font-family: 'Work Sans', sans-serif;
-      font-size: 1rem;
-      transition: border-color 0.3s, box-shadow 0.3s;
+      padding: 0.85rem 1rem;
+      background: rgba(15, 20, 25, 0.5);
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      border-radius: 10px;
+      color: var(--text-primary);
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.95rem;
+      transition: all 0.3s ease;
     }
 
-    .control-group input[type="text"]:focus,
+    .control-group input:focus,
     .control-group textarea:focus,
     .control-group select:focus {
       outline: none;
-      border-color: var(--rust-orange);
-      box-shadow: 0 0 0 3px rgba(212, 104, 47, 0.1);
+      border-color: var(--accent-primary);
+      background: rgba(99, 102, 241, 0.1);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
     }
 
     .control-group textarea {
       resize: vertical;
       min-height: 100px;
-      font-family: 'Crimson Text', serif;
-      font-size: 1.1rem;
+      font-family: 'Space Grotesk', sans-serif;
     }
 
     .color-picker-group {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 1rem;
+      gap: 0.75rem;
+    }
+
+    @media (max-width: 600px) {
+      .color-picker-group {
+        grid-template-columns: repeat(2, 1fr);
+      }
     }
 
     .color-option {
@@ -296,192 +292,298 @@
 
     .color-swatch {
       width: 100%;
-      height: 60px;
-      border-radius: 3px;
-      border: 3px solid transparent;
-      transition: all 0.3s;
+      height: 50px;
+      border-radius: 10px;
+      border: 2px solid rgba(99, 102, 341, 0.3);
+      transition: all 0.3s ease;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 0.75rem;
+      font-size: 0.7rem;
       font-weight: 600;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.5px;
     }
 
     .color-option input[type="radio"]:checked + .color-swatch {
-      border-color: var(--ink-black);
+      border-color: var(--accent-primary);
       transform: scale(1.05);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      box-shadow: 0 0 20px rgba(99, 102, 241, 0.4);
     }
 
     .color-option:hover .color-swatch {
       transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      border-color: var(--accent-primary);
     }
 
-    /* T-Shirt Preview */
+    /* ===== PREVIEW PANEL ===== */
     .preview-panel {
       position: sticky;
-      top: 2rem;
+      top: 100px;
+      animation: fadeInUp 0.8s ease-out 0.3s both;
     }
 
     .tshirt-preview {
-      background: white;
-      padding: 3rem;
-      border-radius: 3px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-      border-top: 4px solid var(--forest-green);
-      min-height: 500px;
+      background: rgba(30, 41, 59, 0.8);
+      backdrop-filter: blur(20px);
+      padding: 2rem;
+      border-radius: 16px;
+      border: 1px solid rgba(99, 102, 241, 0.2);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      min-height: 550px;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      position: relative;
     }
 
     .preview-label {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 0.9rem;
-      letter-spacing: 0.1em;
-      color: var(--clay-brown);
+      font-family: 'Syne', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-tertiary);
       margin-bottom: 1.5rem;
-      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: 1px;
     }
 
     .tshirt-canvas {
       width: 100%;
-      max-width: 400px;
+      max-width: 340px;
       aspect-ratio: 3/4;
       position: relative;
       display: flex;
       align-items: center;
       justify-content: center;
-      border-radius: 3px;
-      transition: background-color 0.5s ease;
-      padding: 3rem;
+      border-radius: 12px;
+      transition: all 0.5s ease;
+      padding: 2.5rem;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
     }
 
     .design-content {
       text-align: center;
       max-width: 100%;
       word-wrap: break-word;
-      animation: fadeIn 0.5s ease;
+      animation: fadeInUp 0.5s ease;
     }
 
     .design-text {
-      font-size: 2rem;
+      font-family: 'Syne', sans-serif;
+      font-size: 2.2rem;
       font-weight: 700;
       line-height: 1.2;
       margin-bottom: 1rem;
-      transition: all 0.3s;
+      transition: all 0.3s ease;
+      letter-spacing: -0.5px;
     }
 
     .design-subtext {
-      font-family: 'Crimson Text', serif;
-      font-size: 1.1rem;
+      font-family: 'Playfair Display', serif;
+      font-size: 1rem;
       font-style: italic;
       opacity: 0.9;
-      transition: all 0.3s;
+      transition: all 0.3s ease;
     }
 
-    /* Action Buttons */
+    .design-image {
+      max-width: 80%;
+      margin-bottom: 1rem;
+      opacity: 0.9;
+    }
+
+    /* ===== ACTION BUTTONS ===== */
     .action-buttons {
       display: flex;
       gap: 1rem;
       margin-top: 2rem;
       flex-wrap: wrap;
+      justify-content: center;
     }
 
     .btn {
-      padding: 1rem 2rem;
+      padding: 0.9rem 1.8rem;
       border: none;
-      border-radius: 3px;
-      font-family: 'Work Sans', sans-serif;
-      font-size: 1rem;
+      border-radius: 10px;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.95rem;
       font-weight: 600;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.5px;
       cursor: pointer;
-      transition: all 0.3s;
+      transition: all 0.3s ease;
       position: relative;
       overflow: hidden;
     }
 
+    .btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.2);
+      transition: left 0.3s ease;
+      z-index: -1;
+    }
+
+    .btn:hover::before {
+      left: 100%;
+    }
+
     .btn-primary {
-      background: var(--rust-orange);
-      color: white;
+      background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+      color: var(--light);
       flex: 1;
-      min-width: 200px;
+      min-width: 160px;
+      box-shadow: 0 8px 24px rgba(99, 102, 241, 0.3);
     }
 
     .btn-primary:hover {
-      background: #c25a25;
       transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(212, 104, 47, 0.3);
+      box-shadow: 0 12px 36px rgba(99, 102, 241, 0.5);
     }
 
     .btn-secondary {
-      background: white;
-      color: var(--ink-black);
-      border: 2px solid var(--ink-black);
+      background: transparent;
+      color: var(--accent-primary);
+      border: 1.5px solid var(--accent-primary);
       flex: 1;
-      min-width: 200px;
+      min-width: 160px;
     }
 
     .btn-secondary:hover {
-      background: var(--ink-black);
-      color: white;
+      background: rgba(99, 102, 241, 0.1);
       transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
     }
 
-    /* Gallery Section */
-    .gallery-section {
-      margin-top: 5rem;
-      animation: fadeIn 0.8s ease-out 0.9s both;
+    /* ===== QUOTE SECTION ===== */
+    .quote-section {
+      animation: fadeInUp 0.8s ease-out 0.2s both;
     }
 
     .section-title {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 2.5rem;
-      letter-spacing: 0.05em;
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 700;
       text-align: center;
-      margin-bottom: 2rem;
-      position: relative;
-      display: inline-block;
-      width: 100%;
+      margin-bottom: 2.5rem;
+      letter-spacing: -1px;
+      background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent-primary) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
 
-    .section-title::after {
-      content: '';
-      position: absolute;
-      bottom: -10px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 80px;
-      height: 3px;
-      background: var(--rust-orange);
+    .form-container {
+      background: rgba(30, 41, 59, 0.8);
+      backdrop-filter: blur(20px);
+      padding: 2.5rem;
+      border-radius: 16px;
+      border: 1px solid rgba(99, 102, 241, 0.2);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    @media (max-width: 768px) {
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .form-grid.full {
+      grid-column: 1 / -1;
+    }
+
+    .table-wrapper {
+      overflow-x: auto;
+      border-radius: 12px;
+      border: 1px solid rgba(99, 102, 241, 0.2);
+      margin: 1.5rem 0;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+
+    table th {
+      background: rgba(99, 102, 241, 0.1);
+      padding: 1rem;
+      text-align: center;
+      font-weight: 600;
+      color: var(--accent-primary);
+      border-bottom: 2px solid rgba(99, 102, 241, 0.3);
+    }
+
+    table td {
+      padding: 0.85rem;
+      border-bottom: 1px solid rgba(99, 102, 241, 0.1);
+      text-align: center;
+    }
+
+    table tr:hover {
+      background: rgba(99, 102, 241, 0.05);
+    }
+
+    table input[type="number"] {
+      width: 60px;
+      padding: 0.5rem;
+      background: rgba(15, 20, 25, 0.5);
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      border-radius: 6px;
+      color: var(--text-primary);
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+
+    table input[type="number"]:focus {
+      outline: none;
+      border-color: var(--accent-primary);
+      background: rgba(99, 102, 241, 0.1);
+    }
+
+    table tfoot {
+      background: rgba(99, 102, 241, 0.1);
+      font-weight: 700;
+    }
+
+    /* ===== GALLERY SECTION ===== */
+    .gallery-section {
+      animation: fadeInUp 0.8s ease-out 0.3s both;
     }
 
     .gallery-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 2rem;
-      margin-top: 3rem;
+      gap: 1.5rem;
+      margin-top: 2.5rem;
     }
 
     .gallery-item {
-      background: white;
-      border-radius: 3px;
+      background: rgba(30, 41, 59, 0.8);
+      backdrop-filter: blur(20px);
+      border-radius: 16px;
+      border: 1px solid rgba(99, 102, 341, 0.2);
       overflow: hidden;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-      transition: transform 0.3s, box-shadow 0.3s;
+      transition: all 0.3s ease;
+      cursor: pointer;
     }
 
     .gallery-item:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+      transform: translateY(-8px);
+      border-color: var(--accent-primary);
+      box-shadow: 0 12px 40px rgba(99, 102, 241, 0.3);
     }
 
     .gallery-image {
@@ -494,15 +596,25 @@
       font-size: 1.5rem;
       font-weight: 700;
       text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .gallery-image::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(236, 72, 153, 0.1) 100%);
+      pointer-events: none;
     }
 
     .gallery-info {
       padding: 1.5rem;
-      border-top: 2px solid #f0f0f0;
+      border-top: 1px solid rgba(99, 102, 341, 0.2);
     }
 
     .gallery-info h3 {
-      font-family: 'Work Sans', sans-serif;
+      font-family: 'Syne', sans-serif;
       font-size: 1.1rem;
       font-weight: 600;
       margin-bottom: 0.5rem;
@@ -510,139 +622,143 @@
 
     .gallery-info p {
       font-size: 0.9rem;
-      color: var(--clay-brown);
+      color: var(--text-secondary);
     }
 
-    /* Footer */
+    /* ===== FOOTER ===== */
     footer {
-      background: var(--ink-black);
-      color: var(--paper-cream);
+      background: rgba(10, 13, 18, 0.8);
+      backdrop-filter: blur(20px);
+      border-top: 1px solid rgba(99, 102, 341, 0.2);
       padding: 3rem 2rem;
       margin-top: 5rem;
       text-align: center;
     }
 
     footer p {
-      font-family: 'Crimson Text', serif;
-      font-size: 1rem;
-      opacity: 0.8;
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+      line-height: 1.8;
     }
 
-    /* Modal */
+    footer a {
+      color: var(--accent-primary);
+      text-decoration: none;
+      transition: all 0.3s ease;
+    }
+
+    footer a:hover {
+      color: var(--accent-secondary);
+    }
+
+    /* ===== MODAL ===== */
     .modal-overlay {
       position: fixed;
       top: 0;
       left: 0;
       right: 0;
       bottom: 0;
-      background: rgba(26, 26, 26, 0.85);
+      background: rgba(10, 13, 18, 0.9);
+      backdrop-filter: blur(10px);
       display: flex;
       align-items: center;
       justify-content: center;
       z-index: 1000;
       animation: fadeIn 0.3s ease;
-      padding: 2rem;
+      padding: 1rem;
     }
 
-    .modal-content {
-      background: white;
-      padding: 3rem;
-      border-radius: 3px;
-      max-width: 500px;
-      width: 100%;
-      position: relative;
-      animation: scaleIn 0.3s ease;
-      border-top: 4px solid var(--rust-orange);
-    }
-
-    @keyframes scaleIn {
+    @keyframes fadeIn {
       from {
         opacity: 0;
-        transform: scale(0.9);
       }
       to {
         opacity: 1;
-        transform: scale(1);
+      }
+    }
+
+    .modal-content {
+      background: rgba(30, 41, 59, 0.95);
+      backdrop-filter: blur(20px);
+      padding: 2.5rem;
+      border-radius: 16px;
+      border: 1px solid rgba(99, 102, 341, 0.3);
+      max-width: 500px;
+      width: 100%;
+      position: relative;
+      animation: slideUp 0.3s ease;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
       }
     }
 
     .modal-close {
       position: absolute;
-      top: 1rem;
-      right: 1rem;
-      background: none;
+      top: 1.5rem;
+      right: 1.5rem;
+      background: rgba(99, 102, 241, 0.1);
       border: none;
       font-size: 1.5rem;
       cursor: pointer;
-      color: var(--clay-brown);
-      width: 32px;
-      height: 32px;
+      color: var(--text-primary);
+      width: 40px;
+      height: 40px;
       display: flex;
       align-items: center;
       justify-content: center;
-      border-radius: 50%;
-      transition: all 0.3s;
+      border-radius: 10px;
+      transition: all 0.3s ease;
     }
 
     .modal-close:hover {
-      background: #f0f0f0;
-      color: var(--ink-black);
+      background: rgba(99, 102, 241, 0.2);
+      color: var(--accent-primary);
     }
 
     .modal-content h2 {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 2rem;
-      letter-spacing: 0.05em;
+      font-family: 'Syne', sans-serif;
+      font-size: 1.8rem;
+      font-weight: 700;
       margin-bottom: 1rem;
+      letter-spacing: -0.5px;
     }
 
     .modal-content p {
-      font-family: 'Crimson Text', serif;
-      font-size: 1.1rem;
-      line-height: 1.6;
-      color: var(--clay-brown);
+      font-size: 1rem;
+      color: var(--text-secondary);
       margin-bottom: 1.5rem;
+      line-height: 1.6;
     }
 
-    /* Responsive tweaks */
-    @media (max-width: 968px) {
-      .header-content {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 1rem;
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 768px) {
+      main {
+        padding: 1rem;
       }
 
-      .logo {
-        font-size: 2.4rem;
+      .header-content {
+        flex-direction: column;
+        gap: 1rem;
       }
 
       nav {
         width: 100%;
         justify-content: center;
-        order: 3;
-        gap: 1rem;
+        flex-wrap: wrap;
       }
 
-      .hero h1 {
-        font-size: 2.4rem;
-      }
-
-      .design-studio {
-        grid-template-columns: 1fr;
-      }
-
-      .tshirt-canvas {
-        padding: 2rem;
-      }
-
-      .tshirt-preview {
-        min-height: auto;
-      }
-    }
-
-    @media (max-width: 600px) {
-      .logo {
-        font-size: 2rem;
+      nav button {
+        padding: 0.5rem 1rem;
+        font-size: 0.85rem;
       }
 
       .hero h1 {
@@ -650,39 +766,133 @@
       }
 
       .design-text {
-        font-size: 1.4rem;
-      }
-
-      .tshirt-canvas {
-        padding: 1rem;
-        max-width: 280px;
+        font-size: 1.5rem;
       }
 
       .controls-panel {
-        padding: 1rem;
+        padding: 1.5rem;
       }
 
-      .btn-primary, .btn-secondary {
-        min-width: auto;
-        padding: 0.75rem 1rem;
+      .tshirt-preview {
+        padding: 1.5rem;
+        min-height: auto;
+      }
+
+      .btn {
+        padding: 0.8rem 1.5rem;
+        font-size: 0.85rem;
+        min-width: 140px;
+      }
+
+      .modal-content {
+        padding: 1.5rem;
+      }
+
+      table {
+        font-size: 0.8rem;
+      }
+
+      table th,
+      table td {
+        padding: 0.6rem 0.4rem;
+      }
+
+      table input[type="number"] {
+        width: 50px;
+        padding: 0.4rem;
+        font-size: 0.85rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .logo {
+        font-size: 1.1rem;
+      }
+
+      .hero h1 {
+        font-size: 1.5rem;
+      }
+
+      .hero p {
         font-size: 0.95rem;
       }
 
-      /* Make table inputs more usable on small screens and allow horizontal scroll */
-      .quote-section .tshirt-canvas { max-width: 260px; }
-      .quote-section table { font-size: 0.9rem; }
-      .quote-section table input[type="number"] { width: 44px; }
-      .quote-section table select { padding: 4px; }
+      .section-title {
+        font-size: 1.5rem;
+      }
 
-      /* Adjust color swatch size */
-      .quote-section td div > div { width: 14px; height: 14px; }
+      .controls-panel,
+      .tshirt-preview,
+      .form-container {
+        padding: 1rem;
+        border-radius: 12px;
+      }
+
+      .form-grid {
+        gap: 1rem;
+      }
+
+      .color-picker-group {
+        gap: 0.5rem;
+      }
+
+      .tshirt-canvas {
+        padding: 1.5rem;
+        max-width: 280px;
+      }
+
+      .design-text {
+        font-size: 1.3rem;
+      }
+
+      .design-subtext {
+        font-size: 0.85rem;
+      }
+
+      .btn {
+        padding: 0.7rem 1.2rem;
+        font-size: 0.8rem;
+      }
+
+      .action-buttons {
+        gap: 0.75rem;
+      }
+
+      table {
+        font-size: 0.75rem;
+      }
+
+      table input[type="number"] {
+        width: 45px;
+        padding: 0.3rem;
+      }
+
+      nav {
+        gap: 0.25rem;
+      }
+
+      nav button {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.75rem;
+      }
     }
 
-    @media (max-width: 420px) {
-      nav { gap: 0.5rem; }
-      .section-title { font-size: 1.8rem; }
-      .gallery-grid { gap: 1rem; }
-      .quote-section table input[type="number"] { width: 36px; }
+    /* Smooth scrollbar */
+    ::-webkit-scrollbar {
+      width: 10px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--darker);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--accent-primary);
+      border-radius: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--accent-secondary);
     }
   </style>
 </head>
@@ -690,20 +900,19 @@
   <div id="root"></div>
 
   <script type="text/babel">
-    const { useState, useEffect } = React;
+    const { useState } = React;
 
     function App() {
-      const [activeView, setActiveView] = useState('quote');
-      const [designText, setDesignText] = useState('YOUR DESIGN HERE');
-      const [subText, setSubText] = useState('Make it yours');
+      const [activeView, setActiveView] = useState('design');
+      const [designText, setDesignText] = useState('YOUR DESIGN');
+      const [subText, setSubText] = useState('Inspire & Impact');
       const [shirtColor, setShirtColor] = useState('#2d5541');
-      const [textColor, setTextColor] = useState('#faf8f3');
-      const [fontStyle, setFontStyle] = useState('bebas');
+      const [textColor, setTextColor] = useState('#ffffff');
+      const [fontStyle, setFontStyle] = useState('syne');
       const [showModal, setShowModal] = useState(false);
       const [selectedTemplate, setSelectedTemplate] = useState('none');
 
-      // Quote form state: sizes and apparel types
-      const sizes = ['XS','S','M','L','XL','2XL','3XL','4XL','5XL'];
+      const sizes = ['XS', 'S', 'M', 'L', 'XL', '2XL', '3XL', '4XL', '5XL'];
       const apparels = [
         { id: 'tshirt', label: 'T-Shirt' },
         { id: 'sweater', label: 'Sweater' },
@@ -720,72 +929,24 @@
       };
 
       const [quantities, setQuantities] = useState(makeInitialQuantities());
-
-      // Pricing loaded from prices.xml when available
-      const [priceData, setPriceData] = useState(null);
-
-      useEffect(() => {
-        // try to load prices.xml from the same folder
-        fetch('prices.xml')
-          .then(r => {
-            if (!r.ok) throw new Error('no prices.xml');
-            return r.text();
-          })
-          .then(text => {
-            try {
-              const parser = new DOMParser();
-              const xml = parser.parseFromString(text, 'application/xml');
-              const data = {};
-              const apparelNodes = xml.getElementsByTagName('apparel');
-              for (let i = 0; i < apparelNodes.length; i++) {
-                const a = apparelNodes[i];
-                const id = a.getAttribute('id');
-                if (!id) continue;
-                data[id] = {};
-                const priceNodes = a.getElementsByTagName('price');
-                for (let j = 0; j < priceNodes.length; j++) {
-                  const p = priceNodes[j];
-                  const printTypeAttr = p.getAttribute('print') || 'front';
-                  const sizeAttr = p.getAttribute('size') || 'base';
-                  const value = parseFloat(p.textContent.trim());
-                  data[id][printTypeAttr] = data[id][printTypeAttr] || {};
-                  data[id][printTypeAttr][sizeAttr] = value;
-                }
-              }
-              setPriceData(data);
-            } catch (err) {
-              console.warn('Failed to parse prices.xml', err);
-            }
-          })
-          .catch(() => {
-            // ignore — we'll use inline defaults
-            console.info('prices.xml not found or failed to load; using defaults');
-          });
-      }, []);
-
-  // Contact / project fields
-  const [orgName, setOrgName] = useState('');
-  const [contactName, setContactName] = useState('');
-  const [contactEmail, setContactEmail] = useState('');
-  // Fixed business WhatsApp number (customers do not edit this)
-  const BUSINESS_NUMBER = '447930951259';
-  const [needBy, setNeedBy] = useState('');
-  const [printType, setPrintType] = useState('front'); // front | back | both
-  const [projectDetails, setProjectDetails] = useState('');
+      const [orgName, setOrgName] = useState('');
+      const [contactName, setContactName] = useState('');
+      const [contactEmail, setContactEmail] = useState('');
+      const BUSINESS_NUMBER = '447930951259';
+      const [needBy, setNeedBy] = useState('');
+      const [printType, setPrintType] = useState('front');
+      const [projectDetails, setProjectDetails] = useState('');
 
       const handleQuantityChange = (appId, size, value) => {
         const v = Math.max(0, parseInt(value || 0, 10));
         setQuantities(prev => ({
           ...prev,
-          [appId]: {
-            ...prev[appId],
-            [size]: Number.isNaN(v) ? 0 : v
-          }
+          [appId]: { ...prev[appId], [size]: Number.isNaN(v) ? 0 : v }
         }));
       };
 
       const computeApparelTotal = (appId) => {
-        return Object.values(quantities[appId] || {}).reduce((a,b) => a + Number(b || 0), 0);
+        return Object.values(quantities[appId] || {}).reduce((a, b) => a + Number(b || 0), 0);
       };
 
       const computeSizeTotal = (size) => {
@@ -796,20 +957,13 @@
         return apparels.reduce((sum, a) => sum + computeApparelTotal(a.id), 0);
       };
 
-      // Pricing rules (GBP), loaded from prices.xml when available
-      // priceData structure: priceData[appId][printType][sizeCategory] => number
       const priceFor = (appId, size, pType = printType) => {
-        const isLarge = ['3XL','4XL','5XL'].includes(size);
+        const isLarge = ['3XL', '4XL', '5XL'].includes(size);
         const sizeCat = isLarge ? 'large' : 'base';
-        if (priceData && priceData[appId] && priceData[appId][pType] && typeof priceData[appId][pType][sizeCat] === 'number') {
-          return priceData[appId][pType][sizeCat];
-        }
-        // fallback defaults (same as before)
         if (pType === 'both') {
           if (appId === 'tshirt') return isLarge ? 14.0 : 13.5;
           if (appId === 'sweater') return isLarge ? 19.5 : 21.0;
           if (appId === 'hoody') return isLarge ? 23.5 : 21.0;
-          return 0;
         }
         if (appId === 'tshirt') return isLarge ? 9.0 : 8.5;
         if (appId === 'sweater') return isLarge ? 14.5 : 14.0;
@@ -826,21 +980,19 @@
       };
 
       const formatGBP = (v) => '£' + Number(v || 0).toFixed(2);
-
       const resetQuantities = () => setQuantities(makeInitialQuantities());
 
-      // Build a readable quote message for WhatsApp
       const buildWhatsAppMessage = () => {
         const lines = [];
         lines.push('JOB87PRINT - Quote Request');
         lines.push('');
-        if (orgName) lines.push(`Organisation: ${orgName}`);
+        if (orgName) lines.push(`Organization: ${orgName}`);
         if (contactName || contactEmail) {
           const contactLine = `Contact: ${contactName || ''}${contactName && contactEmail ? ' - ' : ''}${contactEmail || ''}`;
           lines.push(contactLine);
         }
         if (needBy) lines.push(`Need by: ${needBy}`);
-        if (printType) lines.push(`Print type: ${printType}`);
+        lines.push(`Print type: ${printType}`);
         if (projectDetails) {
           lines.push('Project details:');
           lines.push(projectDetails);
@@ -850,350 +1002,130 @@
           const qtyTotal = computeApparelTotal(app.id);
           if (qtyTotal === 0) return;
           lines.push(`${app.label}: ${qtyTotal} (${formatGBP(computeApparelPriceTotal(app.id))})`);
-          // list sizes with non-zero qty
           sizes.forEach(size => {
             const q = Number(quantities[app.id][size] || 0);
-            if (q > 0) lines.push(`  - ${size}: ${q} @ ${formatGBP(priceFor(app.id, size, printType))}`);
+            if (q > 0) lines.push(`  ${size}: ${q} @ ${formatGBP(priceFor(app.id, size, printType))}`);
           });
-          lines.push('');
         });
+        lines.push('');
         lines.push(`Total items: ${computeOverallTotal()}`);
-        lines.push(`Indicative Grand total: ${formatGBP(computeGrandPriceTotal())}`);
+        lines.push(`Total: ${formatGBP(computeGrandPriceTotal())}`);
         lines.push('');
-        lines.push('I am aware the Grand total is indicative and also does not include delivery costs.');
-        lines.push('');
-        lines.push('Please get back to me with production lead time and payment details.');
-        lines.push('');
-        // Include requester/contact details again with pricing summary for clarity
-        const requester = [];
-        if (contactName) requester.push(`Requested by: ${contactName}`);
-        if (contactEmail) requester.push(`Email: ${contactEmail}`);
-        if (orgName) requester.push(`Organisation: ${orgName}`);
-        if (requester.length) lines.push(requester.join(' | '));
+        lines.push('Ready to discuss production lead time and payment details.');
         return lines.join('\n');
       };
 
       const sendViaWhatsApp = () => {
         const text = buildWhatsAppMessage();
         const encoded = encodeURIComponent(text);
-        // Use the fixed business number and sanitize it for wa.me
-        const raw = BUSINESS_NUMBER.toString();
-        const sanitized = raw.replace(/[^0-9]/g, '');
-        // wa.me expects an international number without '+' and without leading zeros
-        const looksInternational = sanitized.length >= 9 && sanitized[0] !== '0';
-        let url;
-        if (looksInternational) {
-          url = `https://wa.me/${sanitized}?text=${encoded}`;
-        } else {
-          // Fallback: open WhatsApp web/app without preselected recipient
-          url = `https://wa.me/?text=${encoded}`;
-          // Inform the user so they can update BUSINESS_NUMBER to an international format
-          try { window.alert('Notice: business number is not in international format. The message will open without a preselected recipient. To send directly, update the BUSINESS_NUMBER in the app to international format (e.g. 447123456789).'); } catch (e) {}
-          console.warn('BUSINESS_NUMBER is not international-looking; opening wa.me without number. Value:', BUSINESS_NUMBER);
-        }
+        const sanitized = BUSINESS_NUMBER.toString().replace(/[^0-9]/g, '');
+        const url = `https://wa.me/${sanitized}?text=${encoded}`;
         window.open(url, '_blank');
       };
 
-
-        const templateDesigns = [
-        { 
-          id: 'none', 
-          name: 'No Template', 
-          url: '' 
-        },
-        { 
-          id: 'skull', 
-          name: 'Skull Design', 
-          url: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"%3E%3Cpath fill="white" d="M100 20c-30 0-50 20-50 50 0 15 5 25 10 35l-5 30h90l-5-30c5-10 10-20 10-35 0-30-20-50-50-50zm-20 50c-5.5 0-10-4.5-10-10s4.5-10 10-10 10 4.5 10 10-4.5 10-10 10zm40 0c-5.5 0-10-4.5-10-10s4.5-10 10-10 10 4.5 10 10-4.5 10-10 10z"/%3E%3C/svg%3E'
-        },
-        { 
-          id: 'mountain', 
-          name: 'Mountain Scene', 
-          url: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"%3E%3Cpath fill="white" d="M20 140l40-60 30 40 35-50 45 70z"/%3E%3Ccircle cx="160" cy="40" r="15" fill="white"/%3E%3C/svg%3E'
-        },
-        { 
-          id: 'flower', 
-          name: 'Floral Pattern', 
-          url: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"%3E%3Ccircle cx="100" cy="100" r="15" fill="white"/%3E%3Ccircle cx="100" cy="70" r="20" fill="white" opacity="0.8"/%3E%3Ccircle cx="100" cy="130" r="20" fill="white" opacity="0.8"/%3E%3Ccircle cx="70" cy="100" r="20" fill="white" opacity="0.8"/%3E%3Ccircle cx="130" cy="100" r="20" fill="white" opacity="0.8"/%3E%3Ccircle cx="80" cy="80" r="15" fill="white" opacity="0.6"/%3E%3Ccircle cx="120" cy="80" r="15" fill="white" opacity="0.6"/%3E%3Ccircle cx="80" cy="120" r="15" fill="white" opacity="0.6"/%3E%3Ccircle cx="120" cy="120" r="15" fill="white" opacity="0.6"/%3E%3C/svg%3E'
-        },
-        { 
-          id: 'geometric', 
-          name: 'Geometric Shapes', 
-          url: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"%3E%3Cpolygon points="100,30 150,90 130,150 70,150 50,90" fill="none" stroke="white" stroke-width="3"/%3E%3Ccircle cx="100" cy="100" r="40" fill="none" stroke="white" stroke-width="3"/%3E%3Crect x="80" y="80" width="40" height="40" fill="none" stroke="white" stroke-width="3"/%3E%3C/svg%3E'
-        },
-        { 
-          id: 'coffee', 
-          name: 'Coffee Cup', 
-          url: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"%3E%3Cpath fill="white" d="M60 60h60v70c0 15-10 25-25 25h-10c-15 0-25-10-25-25V60z"/%3E%3Cpath fill="white" d="M120 80h15c8 0 15 7 15 15v10c0 8-7 15-15 15h-15"/%3E%3Cpath fill="none" stroke="white" stroke-width="3" d="M75 45c0-10 5-15 10-15s10 5 10 15M90 45c0-10 5-15 10-15s10 5 10 15M105 45c0-10 5-15 10-15s10 5 10 15"/%3E%3C/svg%3E'
-        },
-        { 
-          id: 'wave', 
-          name: 'Wave Pattern', 
-          url: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"%3E%3Cpath fill="none" stroke="white" stroke-width="4" d="M20 80 Q 50 60, 80 80 T 140 80 T 200 80"/%3E%3Cpath fill="none" stroke="white" stroke-width="4" d="M20 100 Q 50 80, 80 100 T 140 100 T 200 100"/%3E%3Cpath fill="none" stroke="white" stroke-width="4" d="M20 120 Q 50 100, 80 120 T 140 120 T 200 120"/%3E%3C/svg%3E'
-        },
-        { 
-          id: 'star', 
-          name: 'Star Burst', 
-          url: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"%3E%3Cpolygon points="100,30 115,75 160,80 125,110 135,155 100,130 65,155 75,110 40,80 85,75" fill="white"/%3E%3Ccircle cx="100" cy="100" r="15" fill="white"/%3E%3C/svg%3E'
-        }
+      const templateDesigns = [
+        { id: 'none', name: 'No Template', url: '' },
+        { id: 'cross', name: 'Cross Design', url: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"%3E%3Cpath stroke="white" stroke-width="12" fill="none" d="M100 20 L100 180 M20 100 L180 100"/%3E%3C/svg%3E' },
+        { id: 'star', name: 'Star Burst', url: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"%3E%3Cpolygon points="100,30 115,75 160,80 125,110 135,155 100,130 65,155 75,110 40,80 85,75" fill="white"/%3E%3C/svg%3E' },
+        { id: 'circle', name: 'Circle Pattern', url: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"%3E%3Ccircle cx="100" cy="100" r="70" fill="none" stroke="white" stroke-width="3"/%3E%3Ccircle cx="100" cy="100" r="50" fill="none" stroke="white" stroke-width="2"/%3E%3Ccircle cx="100" cy="100" r="30" fill="white"/%3E%3C/svg%3E' }
       ];
 
       const shirtColors = [
-        { name: 'Forest Green', value: '#2d5541' },
-        { name: 'Rust Orange', value: '#d4682f' },
-        { name: 'Ink Black', value: '#1a1a1a' },
-        { name: 'Clay Brown', value: '#8b6f5c' },
-        { name: 'Soft Blue', value: '#7ba3b8' },
-        { name: 'Paper Cream', value: '#faf8f3' }
+        { name: 'Black', value: '#0f1419' },
+        { name: 'Navy', value: '#1e3a8a' },
+        { name: 'White', value: '#f8fafc' },
+        { name: 'Red', value: '#dc2626' },
+        { name: 'Green', value: '#059669' },
+        { name: 'Purple', value: '#7c3aed' }
       ];
 
       const textColors = [
         { name: 'White', value: '#ffffff' },
-        { name: 'Black', value: '#1a1a1a' },
-        { name: 'Cream', value: '#faf8f3' },
-        { name: 'Orange', value: '#d4682f' },
-        { name: 'Green', value: '#2d5541' },
-        { name: 'Gold', value: '#ffd97d' }
+        { name: 'Black', value: '#0f1419' },
+        { name: 'Gold', value: '#fbbf24' },
+        { name: 'Cyan', value: '#06b6d4' },
+        { name: 'Pink', value: '#ec4899' },
+        { name: 'Green', value: '#10b981' }
       ];
 
       const exampleDesigns = [
-        { text: 'OMO', sub: 'OBEDIENCE, MERCY, OFFERING', color: '#2d5541', textColor: '#faf8f3' },
-        { text: 'ANAGKAZO', sub: 'BIAZON & ANADEIA life', color: '#1a1a1a', textColor: '#ffd97d' },
-        { text: 'EVERYTHING', sub: 'BY PRAYER', color: '#d4682f', textColor: '#ffffff' },
-        { text: 'PRAYER', sub: 'CHANGES THINGS', color: '#7ba3b8', textColor: '#ffffff' }
+        { text: 'OMO', sub: 'OBEDIENCE, MERCY, OFFERING', color: '#1e3a8a', textColor: '#ffffff' },
+        { text: 'FAITH', sub: 'OVER FEAR', color: '#dc2626', textColor: '#ffffff' },
+        { text: 'BLESSED', sub: 'AND GRATEFUL', color: '#059669', textColor: '#ffffff' },
+        { text: 'RISE', sub: 'AND SHINE', color: '#7c3aed', textColor: '#ffffff' }
       ];
 
       const getFontFamily = () => {
-        switch(fontStyle) {
-          case 'bebas':
-            return "'Bebas Neue', sans-serif";
-          case 'crimson':
-            return "'Crimson Text', serif";
-          case 'work':
-            return "'Work Sans', sans-serif";
+        switch (fontStyle) {
+          case 'syne':
+            return "'Syne', sans-serif";
+          case 'playfair':
+            return "'Playfair Display', serif";
           default:
-            return "'Bebas Neue', sans-serif";
+            return "'Space Grotesk', sans-serif";
         }
-      };
-
-      const handleDownload = () => {
-        setShowModal(true);
-      };
-
-      const handleOrder = () => {
-        setShowModal(true);
       };
 
       return (
         <div className="app-container">
           <header>
             <div className="header-content">
-              <div>
-                <div className="logo">JOB87PRINT</div>
-                <div className="logo-subtitle">Custom Design & Print</div>
+              <div className="logo">
+                <div className="logo-icon">✨</div>
+                <span>JOB87PRINT</span>
               </div>
               <nav>
-                 <button 
-                  className={activeView === 'quote' ? 'active' : ''}
-                  onClick={() => setActiveView('quote')}
-                >
-                  Job87Print
-                </button>
-                <button 
-                  className={activeView === 'design' ? 'active' : ''}
-                  onClick={() => setActiveView('design')}
-                >
-                  Design
-                </button>
-                <button 
-                  className={activeView === 'gallery' ? 'active' : ''}
-                  onClick={() => setActiveView('gallery')}
-                >
-                  Gallery
-                </button>
-                <button 
-                  className={activeView === 'about' ? 'active' : ''}
-                  onClick={() => setActiveView('about')}
-                >
-                  About
-                </button>
+                <button className={activeView === 'design' ? 'active' : ''} onClick={() => setActiveView('design')}>Design Studio</button>
+                <button className={activeView === 'quote' ? 'active' : ''} onClick={() => setActiveView('quote')}>Get Quote</button>
+                <button className={activeView === 'gallery' ? 'active' : ''} onClick={() => setActiveView('gallery')}>Gallery</button>
+                <button className={activeView === 'about' ? 'active' : ''} onClick={() => setActiveView('about')}>About</button>
               </nav>
             </div>
           </header>
 
           <main>
-            {activeView === 'quote' && (
-            <>
-                <div className="hero">
-                  <h1>CREATE YOUR MINISTRY PRINTS</h1>
-                  <p>From inspiring t-shirts to powerful event materials, we bring your ministry's message and vision to life.</p>
-                </div>
-              <div className="quote-section">
-                <h2 className="section-title">REQUEST A QUOTE</h2>
-                <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '1rem' }}>
-                  <p style={{ color: 'var(--clay-brown)', marginBottom: '1rem' }}>Specify quantities for each apparel and size. Totals per apparel and totals per size are calculated below.</p>
-                  <div style={{ marginBottom: '1rem', background: 'white', padding: '1rem', borderRadius: '6px', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
-                      <div>
-                        <label style={{ display: 'block', fontWeight: 700, marginBottom: '0.25rem' }}>Church / Organisation</label>
-                        <input type="text" value={orgName} onChange={(e) => setOrgName(e.target.value)} placeholder="Organisation name" style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }} />
-                      </div>
-                      <div>
-                        <label style={{ display: 'block', fontWeight: 700, marginBottom: '0.25rem' }}>Contact Name <span style={{ color: 'red' }}>*</span></label>
-                        <input type="text" value={contactName} onChange={(e) => setContactName(e.target.value)} placeholder="Full name" style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }} />
-                      </div>
-                      <div>
-                        <label style={{ display: 'block', fontWeight: 700, marginBottom: '0.25rem' }}>Email</label>
-                        <input type="email" value={contactEmail} onChange={(e) => setContactEmail(e.target.value)} placeholder="email@example.com" style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }} />
-                      </div>
-                     
-                      <div>
-                        <label style={{ display: 'block', fontWeight: 700, marginBottom: '0.25rem' }}>Need-by date</label>
-                        <input type="date" value={needBy} onChange={(e) => setNeedBy(e.target.value)} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }} />
-                      </div>
-                      <div style={{ gridColumn: '1 / -1' }}>
-                        <label style={{ display: 'block', fontWeight: 700, marginBottom: '0.25rem' }}>Print type</label>
-                        <select value={printType} onChange={(e) => setPrintType(e.target.value)} style={{ width: '260px', padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }}>
-                          <option value="front">Front only</option>
-                          <option value="back">Back only</option>
-                          <option value="both">Front & Back</option>
-                        </select>
-                      
-                      </div>
-                      <div style={{ gridColumn: '1 / -1' }}>
-                        <label style={{ display: 'block', fontWeight: 700, marginBottom: '0.25rem' }}>Project details (special requirements, colours, etc.)</label>
-                        <textarea value={projectDetails} onChange={(e) => setProjectDetails(e.target.value)} placeholder="Add any special instructions or colour requirements" style={{ width: '100%', minHeight: '80px', padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }} />
-                      </div>
-                    </div>
-                  </div>
-                  <div style={{ overflowX: 'auto' }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                      <thead>
-                        <tr>
-                          <th style={{ textAlign: 'left', padding: '0.5rem 1rem' }}>Apparel / Size</th>
-                          {sizes.map(size => (
-                            <th key={size} style={{ padding: '0.5rem 1rem', textAlign: 'center' }}>{size}</th>
-                          ))}
-                          <th style={{ padding: '0.5rem 1rem', textAlign: 'center' }}>Qty Total</th>
-                          <th style={{ padding: '0.5rem 1rem', textAlign: 'center' }}>Amount</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {apparels.map(app => (
-                          <tr key={app.id}>
-                            <td style={{ padding: '0.5rem 1rem', fontWeight: 600 }}>{app.label}</td>
-                            {sizes.map(size => (
-                              <td key={size} style={{ padding: '0.25rem 0.5rem', textAlign: 'center' }}>
-                                <input
-                                  type="number"
-                                  min="0"
-                                  value={quantities[app.id][size]}
-                                  onChange={(e) => handleQuantityChange(app.id, size, e.target.value)}
-                                  style={{ width: '60px', padding: '6px', borderRadius: '3px', border: '1px solid #ccc' }}
-                                />
-                              </td>
-                            ))}
-                            <td style={{ padding: '0.5rem 1rem', textAlign: 'center', fontWeight: 700 }}>{computeApparelTotal(app.id)}</td>
-                            <td style={{ padding: '0.5rem 1rem', textAlign: 'center', fontWeight: 700 }}>{formatGBP(computeApparelPriceTotal(app.id))}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                      <tfoot>
-                        <tr>
-                          <td style={{ padding: '0.5rem 1rem', fontWeight: 700 }}>Total per Size</td>
-                          {sizes.map(size => (
-                            <td key={size} style={{ padding: '0.5rem 1rem', textAlign: 'center', fontWeight: 700 }}>{computeSizeTotal(size)}</td>
-                          ))}
-                          <td style={{ padding: '0.5rem 1rem', textAlign: 'center', fontWeight: 900 }}>{computeOverallTotal()}</td>
-                          <td style={{ padding: '0.5rem 1rem', textAlign: 'center', fontWeight: 900 }}>{formatGBP(computeGrandPriceTotal())}</td>
-                        </tr>
-                      </tfoot>
-                    </table>
-                  </div>
-                  <div className="action-buttons" style={{ marginTop: '1rem' }}>
-                  
-                    <button className="btn btn-primary" onClick={sendViaWhatsApp} style={{ minWidth: '200px' }}>
-                      Send via WhatsApp
-                    </button>
-                    <button className="btn btn-secondary" onClick={resetQuantities}>
-                      Reset
-                    </button>
-                  </div>
-                </div>
-              </div>
-              </>
-            )}
-
             {activeView === 'design' && (
               <>
                 <div className="hero">
-                  <h1>CREATE YOUR MINISTRY PRINTS</h1>
-                  <p>From inspiring t-shirts to powerful event materials, we bring your ministry's message and vision to life.</p>
+                  <h1>Create Your Ministry Design</h1>
+                  <p>Bring your message to life with stunning custom prints. Design, customize, and order with ease.</p>
                 </div>
 
                 <div className="design-studio">
                   <div className="controls-panel">
                     <div className="control-group">
                       <label>Main Text</label>
-                      <input 
-                        type="text"
-                        value={designText}
-                        onChange={(e) => setDesignText(e.target.value)}
-                        placeholder="Enter your text"
-                      />
+                      <input type="text" value={designText} onChange={(e) => setDesignText(e.target.value)} placeholder="Enter your text" />
                     </div>
 
                     <div className="control-group">
                       <label>Subtitle</label>
-                      <input 
-                        type="text"
-                        value={subText}
-                        onChange={(e) => setSubText(e.target.value)}
-                        placeholder="Add a subtitle"
-                      />
+                      <input type="text" value={subText} onChange={(e) => setSubText(e.target.value)} placeholder="Add subtitle" />
                     </div>
 
                     <div className="control-group">
                       <label>Font Style</label>
                       <select value={fontStyle} onChange={(e) => setFontStyle(e.target.value)}>
-                        <option value="bebas">Bold Display (Bebas)</option>
-                        <option value="crimson">Elegant Serif (Crimson)</option>
-                        <option value="work">Modern Sans (Work Sans)</option>
+                        <option value="syne">Bold Modern</option>
+                        <option value="playfair">Elegant Serif</option>
+                        <option value="space">Clean Sans</option>
                       </select>
                     </div>
 
                     <div className="control-group">
-                      <label>Graphic Template</label>
+                      <label>Design Template</label>
                       <select value={selectedTemplate} onChange={(e) => setSelectedTemplate(e.target.value)}>
-                        {templateDesigns.map((template) => (
-                          <option key={template.id} value={template.id}>
-                            {template.name}
-                          </option>
-                        ))}
+                        {templateDesigns.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
                       </select>
                     </div>
 
                     <div className="control-group">
                       <label>Shirt Color</label>
                       <div className="color-picker-group">
-                        {shirtColors.map((color) => (
-                          <label key={color.value} className="color-option">
-                            <input 
-                              type="radio"
-                              name="shirtColor"
-                              value={color.value}
-                              checked={shirtColor === color.value}
-                              onChange={(e) => setShirtColor(e.target.value)}
-                            />
-                            <div 
-                              className="color-swatch"
-                              style={{ 
-                                backgroundColor: color.value,
-                                color: color.value === '#faf8f3' ? '#1a1a1a' : '#ffffff'
-                              }}
-                            >
-                              {color.name}
-                            </div>
+                        {shirtColors.map(c => (
+                          <label key={c.value} className="color-option">
+                            <input type="radio" name="shirtColor" value={c.value} checked={shirtColor === c.value} onChange={(e) => setShirtColor(e.target.value)} />
+                            <div className="color-swatch" style={{ backgroundColor: c.value, color: c.value === '#f8fafc' ? '#0f1419' : '#ffffff' }}>{c.name}</div>
                           </label>
                         ))}
                       </div>
@@ -1202,24 +1134,10 @@
                     <div className="control-group">
                       <label>Text Color</label>
                       <div className="color-picker-group">
-                        {textColors.map((color) => (
-                          <label key={color.value} className="color-option">
-                            <input 
-                              type="radio"
-                              name="textColor"
-                              value={color.value}
-                              checked={textColor === color.value}
-                              onChange={(e) => setTextColor(e.target.value)}
-                            />
-                            <div 
-                              className="color-swatch"
-                              style={{ 
-                                backgroundColor: color.value,
-                                color: color.value === '#ffffff' || color.value === '#faf8f3' ? '#1a1a1a' : '#ffffff'
-                              }}
-                            >
-                              {color.name}
-                            </div>
+                        {textColors.map(c => (
+                          <label key={c.value} className="color-option">
+                            <input type="radio" name="textColor" value={c.value} checked={textColor === c.value} onChange={(e) => setTextColor(e.target.value)} />
+                            <div className="color-swatch" style={{ backgroundColor: c.value, color: ['#ffffff', '#f8fafc'].includes(c.value) ? '#0f1419' : '#ffffff' }}>{c.name}</div>
                           </label>
                         ))}
                       </div>
@@ -1228,48 +1146,100 @@
 
                   <div className="preview-panel">
                     <div className="tshirt-preview">
-                      <div className="preview-label">LIVE PREVIEW</div>
-                      <div 
-                        className="tshirt-canvas"
-                        style={{ backgroundColor: shirtColor }}
-                      >
+                      <div className="preview-label">Live Preview</div>
+                      <div className="tshirt-canvas" style={{ backgroundColor: shirtColor }}>
                         <div className="design-content">
-                        {selectedTemplate !== 'none' && (
-                            <div className="image-text-combo">
-                              <img 
-                                src={templateDesigns.find(t => t.id === selectedTemplate)?.url}
-                                alt="Design template"
-                                className="design-image"
-                              />
-                            </div>
-                          )}
-                          <div 
-                            className="design-text"
-                            style={{ 
-                              color: textColor,
-                              fontFamily: getFontFamily()
-                            }}
-                          >
-                            {designText || 'YOUR DESIGN HERE'}
-                          </div>
-                          {subText && (
-                            <div 
-                              className="design-subtext"
-                              style={{ color: textColor }}
-                            >
-                              {subText}
-                            </div>
-                          )}
+                          {selectedTemplate !== 'none' && <img src={templateDesigns.find(t => t.id === selectedTemplate)?.url} alt="Design" className="design-image" />}
+                          <div className="design-text" style={{ color: textColor, fontFamily: getFontFamily() }}>{designText}</div>
+                          {subText && <div className="design-subtext" style={{ color: textColor }}>{subText}</div>}
                         </div>
                       </div>
                       <div className="action-buttons">
-                        <button className="btn btn-primary" onClick={handleOrder}>
-                          Order Print
-                        </button>
-                        <button className="btn btn-secondary" onClick={handleDownload}>
-                          Save Design
-                        </button>
+                        <button className="btn btn-primary" onClick={() => setActiveView('quote')}>Order Now</button>
+                        <button className="btn btn-secondary" onClick={() => setShowModal(true)}>Save Design</button>
                       </div>
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
+
+            {activeView === 'quote' && (
+              <>
+                <div className="hero">
+                  <h1>Get Your Quote</h1>
+                  <p>Specify quantities and we'll calculate your total instantly.</p>
+                </div>
+
+                <div className="quote-section">
+                  <div className="form-container">
+                    <div className="form-grid">
+                      <div className="control-group">
+                        <label>Organization Name</label>
+                        <input type="text" value={orgName} onChange={(e) => setOrgName(e.target.value)} placeholder="Church / Organization" />
+                      </div>
+                      <div className="control-group">
+                        <label>Contact Name *</label>
+                        <input type="text" value={contactName} onChange={(e) => setContactName(e.target.value)} placeholder="Full name" />
+                      </div>
+                      <div className="control-group">
+                        <label>Email</label>
+                        <input type="email" value={contactEmail} onChange={(e) => setContactEmail(e.target.value)} placeholder="your@email.com" />
+                      </div>
+                      <div className="control-group">
+                        <label>Need By Date</label>
+                        <input type="date" value={needBy} onChange={(e) => setNeedBy(e.target.value)} />
+                      </div>
+                      <div className="control-group form-grid full">
+                        <select value={printType} onChange={(e) => setPrintType(e.target.value)} style={{ gridColumn: '1 / 2' }}>
+                          <option value="front">Front Only</option>
+                          <option value="back">Back Only</option>
+                          <option value="both">Front & Back</option>
+                        </select>
+                      </div>
+                      <div className="control-group form-grid full">
+                        <textarea value={projectDetails} onChange={(e) => setProjectDetails(e.target.value)} placeholder="Special requirements, colors, etc." />
+                      </div>
+                    </div>
+
+                    <div className="table-wrapper">
+                      <table>
+                        <thead>
+                          <tr>
+                            <th>Item</th>
+                            {sizes.map(s => <th key={s}>{s}</th>)}
+                            <th>Total</th>
+                            <th>Price</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {apparels.map(app => (
+                            <tr key={app.id}>
+                              <td style={{ textAlign: 'left' }}><strong>{app.label}</strong></td>
+                              {sizes.map(size => (
+                                <td key={size}>
+                                  <input type="number" min="0" value={quantities[app.id][size]} onChange={(e) => handleQuantityChange(app.id, size, e.target.value)} />
+                                </td>
+                              ))}
+                              <td><strong>{computeApparelTotal(app.id)}</strong></td>
+                              <td><strong>{formatGBP(computeApparelPriceTotal(app.id))}</strong></td>
+                            </tr>
+                          ))}
+                        </tbody>
+                        <tfoot>
+                          <tr>
+                            <td style={{ textAlign: 'left' }}>Total per Size</td>
+                            {sizes.map(size => <td key={size}><strong>{computeSizeTotal(size)}</strong></td>)}
+                            <td><strong>{computeOverallTotal()}</strong></td>
+                            <td><strong>{formatGBP(computeGrandPriceTotal())}</strong></td>
+                          </tr>
+                        </tfoot>
+                      </table>
+                    </div>
+
+                    <div className="action-buttons">
+                      <button className="btn btn-primary" onClick={sendViaWhatsApp}>Send via WhatsApp</button>
+                      <button className="btn btn-secondary" onClick={resetQuantities}>Reset</button>
                     </div>
                   </div>
                 </div>
@@ -1278,40 +1248,19 @@
 
             {activeView === 'gallery' && (
               <div className="gallery-section">
-                <h2 className="section-title">FEATURED DESIGNS</h2>
+                <h1 className="section-title">Featured Designs</h1>
                 <div className="gallery-grid">
-                  {exampleDesigns.map((design, index) => (
-                    <div 
-                      key={index} 
-                      className="gallery-item"
-                      onClick={() => {
-                        setDesignText(design.text);
-                        setSubText(design.sub);
-                        setShirtColor(design.color);
-                        setTextColor(design.textColor);
-                        setActiveView('design');
-                      }}
-                      style={{ cursor: 'pointer' }}
-                    >
-                      <div 
-                        className="gallery-image"
-                        style={{ 
-                          backgroundColor: design.color,
-                          color: design.textColor
-                        }}
-                      >
+                  {exampleDesigns.map((design, i) => (
+                    <div key={i} className="gallery-item" onClick={() => { setDesignText(design.text); setSubText(design.sub); setShirtColor(design.color); setTextColor(design.textColor); setActiveView('design'); }}>
+                      <div className="gallery-image" style={{ backgroundColor: design.color, color: design.textColor }}>
                         <div>
-                          <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '1.8rem' }}>
-                            {design.text}
-                          </div>
-                          <div style={{ fontFamily: "'Crimson Text', serif", fontSize: '0.9rem', fontStyle: 'italic', marginTop: '0.5rem' }}>
-                            {design.sub}
-                          </div>
+                          <div style={{ fontFamily: "'Syne', sans-serif", fontSize: '1.8rem', fontWeight: 700 }}>{design.text}</div>
+                          <div style={{ fontFamily: "'Playfair Display', serif", fontSize: '0.9rem', fontStyle: 'italic', marginTop: '0.5rem' }}>{design.sub}</div>
                         </div>
                       </div>
                       <div className="gallery-info">
                         <h3>{design.text}</h3>
-                        <p>Click to customize this design</p>
+                        <p>Click to customize</p>
                       </div>
                     </div>
                   ))}
@@ -1321,64 +1270,34 @@
 
             {activeView === 'about' && (
               <div className="gallery-section">
-                <h2 className="section-title">ABOUT JOB87PRINT</h2>
-                <div style={{ maxWidth: '800px', margin: '3rem auto', textAlign: 'center' }}>
-                  <p style={{ 
-                    fontFamily: "'Crimson Text', serif", 
-                    fontSize: '1.3rem', 
-                    lineHeight: '1.8',
-                    color: 'var(--clay-brown)',
-                    marginBottom: '2rem'
-                  }}>
-                    For years, we've been blessed to serve churches and Christian organizations across the UK. We don't just print, we partner with you to spread your ministry's message through quality custom products.
-                    From small community churches to large ministries, we treat every order with the same dedication and care. Your mission is our mission..
+                <h1 className="section-title">About JOB87PRINT</h1>
+                <div style={{ maxWidth: '700px', margin: '3rem auto', textAlign: 'center' }}>
+                  <p style={{ fontSize: '1.1rem', color: 'var(--text-secondary)', marginBottom: '2rem', lineHeight: 1.8 }}>
+                    For years, we've partnered with churches and Christian organizations across the UK to bring their mission to life through quality custom prints. Every design tells a story, and we're honored to help you share yours.
                   </p>
-                  <p style={{ 
-                    fontFamily: "'Crimson Text', serif", 
-                    fontSize: '1.3rem', 
-                    lineHeight: '1.8',
-                    color: 'var(--clay-brown)',
-                    marginBottom: '2rem'
-                  }}>
-                    Our commitment to quality craftsmanship and sustainable materials ensures that your custom ministry 
-                    designs look great and last long. From concept to creation, we're here to help you reach out to lost souls.
+                  <p style={{ fontSize: '1.1rem', color: 'var(--text-secondary)', marginBottom: '3rem', lineHeight: 1.8 }}>
+                    From concept to creation, our commitment to excellence ensures your message reaches hearts and minds. Let's create something meaningful together.
                   </p>
-                  <div className="action-buttons" style={{ justifyContent: 'center', marginTop: '3rem' }}>
-                    <button 
-                      className="btn btn-primary"
-                      onClick={() => setActiveView('design')}
-                    >
-                      Start Designing
-                    </button>
-                  </div>
+                  <button className="btn btn-primary" onClick={() => setActiveView('design')}>Start Creating</button>
                 </div>
               </div>
             )}
           </main>
 
           <footer>
-            <p>© 2026 JOB87PRINT. Crafted with care for ministry everywhere.</p>
+            <p>© 2024 JOB87PRINT. Designed & Crafted for Ministry. | <a href="#">Contact Us</a></p>
           </footer>
 
           {showModal && (
             <div className="modal-overlay" onClick={() => setShowModal(false)}>
               <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-                <button className="modal-close" onClick={() => setShowModal(false)}>×</button>
-                <h2>COMING SOON</h2>
-                <p>
-                  Our printing and ordering system is currently in development. 
-                  For now, take a screenshot of your design and reach out to us directly to place an order!
-                </p>
-                <p style={{ fontSize: '1rem', opacity: 0.7 }}>
-                  Contact: hello@job87print.com
-                </p>
-                <button 
-                  className="btn btn-primary" 
-                  style={{ width: '100%', marginTop: '1rem' }}
-                  onClick={() => setShowModal(false)}
-                >
-                  Got It
-                </button>
+                <button className="modal-close" onClick={() => setShowModal(false)}>✕</button>
+                <h2>Design Saved!</h2>
+                <p>Your design has been saved. You can now order it or continue customizing.</p>
+                <p style={{ fontSize: '0.95rem', color: 'var(--text-tertiary)' }}>Ready to bring it to life? Let's place an order!</p>
+                <div className="action-buttons">
+                  <button className="btn btn-primary" style={{ width: '100%' }} onClick={() => { setShowModal(false); setActiveView('quote'); }}>Order Now</button>
+                </div>
               </div>
             </div>
           )}
