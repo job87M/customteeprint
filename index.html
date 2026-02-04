@@ -994,6 +994,18 @@
       color: var(--accent-primary);
       background: rgba(99, 102, 241, 0.07);
     }
+    /* ===== COMING SOON STYLES ===== */
+    .coming-wrap{max-width:1100px;margin:2.5rem auto;padding:1rem}
+    .coming-hero{display:grid;grid-template-columns:1fr 420px;gap:2rem;align-items:start}
+    .coming-card{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.03);padding:1.25rem;border-radius:12px}
+    .coming-lead{color:var(--text-tertiary);max-width:60ch}
+    .coming-features{display:grid;grid-template-columns:repeat(2,1fr);gap:.8rem;margin-top:1rem}
+    .coming-feature{padding:.8rem;border-radius:8px;background:linear-gradient(180deg,rgba(255,255,255,0.01),transparent);border:1px solid rgba(255,255,255,0.02)}
+    .coming-signup{display:flex;gap:.5rem;margin-top:1rem}
+    .coming-preview{height:220px;border-radius:10px;background:linear-gradient(135deg,#111827,#0b1220);display:flex;align-items:center;justify-content:center;color:var(--text-tertiary)}
+    .coming-gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:.6rem;margin-top:1rem}
+    .coming-tile{height:96px;border-radius:8px;background:linear-gradient(135deg,rgba(255,255,255,0.02),transparent);display:flex;align-items:center;justify-content:center;color:var(--text-tertiary);font-weight:600}
+    @media(max-width:880px){.coming-hero{grid-template-columns:1fr}}
   </style>
 </head>
 <body>
@@ -1153,6 +1165,33 @@
         window.open(url, '_blank');
       };
 
+      // Coming soon signup state and actions
+      const [signupEmail, setSignupEmail] = useState('');
+      const [signupMsg, setSignupMsg] = useState('');
+
+      const openWhatsAppEnquiry = () => {
+        const sanitized = BUSINESS_NUMBER.toString().replace(/[^0-9]/g, '');
+        const text = encodeURIComponent("Hi! I'd like a quote for custom event gifts.\nEvent date:\nQuantities:\nNotes:");
+        window.open(`https://wa.me/${sanitized}?text=${text}`, '_blank');
+      };
+
+      const subscribeEmail = () => {
+        const v = (signupEmail || '').trim();
+        if(!v || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)){
+          setSignupMsg('Please enter a valid email');
+          return;
+        }
+        const list = JSON.parse(localStorage.getItem('ck_subs') || '[]');
+        if(list.includes(v)){
+          setSignupMsg('You\'re already signed up — thank you!');
+          return;
+        }
+        list.push(v);
+        localStorage.setItem('ck_subs', JSON.stringify(list));
+        setSignupMsg('Thanks — we\'ll email you when we launch.');
+        setSignupEmail('');
+      };
+
       const templateDesigns = [
         { id: 'none', name: 'No Template', url: '' },
         { id: 'cross', name: 'Cross Design', url: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"%3E%3Cpath stroke="white" stroke-width="12" fill="none" d="M100 20 L100 180 M20 100 L180 100"/%3E%3C/svg%3E' },
@@ -1210,7 +1249,8 @@
                 <button className={activeView === 'design' ? 'active' : ''} onClick={() => { setActiveView('design'); setMobileMenuOpen(false); }}>Design Studio</button>
                 <button className={activeView === 'quote' ? 'active' : ''} onClick={() => { setActiveView('quote'); setMobileMenuOpen(false); }}>Get Quote</button>
                 <button className={activeView === 'gallery' ? 'active' : ''} onClick={() => { setActiveView('gallery'); setMobileMenuOpen(false); }}>Gallery</button>
-                <button className={activeView === 'about' ? 'active' : ''} onClick={() => { setActiveView('about'); setMobileMenuOpen(false); }}>About</button>
+                  <button className={activeView === 'coming' ? 'active' : ''} onClick={() => { setActiveView('coming'); setMobileMenuOpen(false); }}>Souvenirs & Gifts</button>
+                  <button className={activeView === 'about' ? 'active' : ''} onClick={() => { setActiveView('about'); setMobileMenuOpen(false); }}>About</button>
               </nav>
 
               {/* Hamburger for mobile */}
@@ -1227,6 +1267,7 @@
                     <button className={activeView === 'design' ? 'active mobile-link' : 'mobile-link'} onClick={() => { setActiveView('design'); setMobileMenuOpen(false); }}>Design Studio</button>
                     <button className={activeView === 'quote' ? 'active mobile-link' : 'mobile-link'} onClick={() => { setActiveView('quote'); setMobileMenuOpen(false); }}>Get Quote</button>
                     <button className={activeView === 'gallery' ? 'active mobile-link' : 'mobile-link'} onClick={() => { setActiveView('gallery'); setMobileMenuOpen(false); }}>Gallery</button>
+                    <button className={activeView === 'coming' ? 'active mobile-link' : 'mobile-link'} onClick={() => { setActiveView('coming'); setMobileMenuOpen(false); }}>Souvenirs & Gifts</button>
                     <button className={activeView === 'about' ? 'active mobile-link' : 'mobile-link'} onClick={() => { setActiveView('about'); setMobileMenuOpen(false); }}>About</button>
                   </div>
                 </div>
@@ -1400,6 +1441,21 @@
 
                 </div>
               </>
+            )}
+
+            {activeView === 'coming' && (
+              <div className="gallery-section coming-wrap">
+                <h1 className="section-title">Custom Evergreen Souvenirs</h1>
+                <h1 className="section-title">Coming Soon</h1>
+
+                <div className="form-container" style={{ textAlign: 'center' }}>
+                  <h3>Personalised keepsakes, wedding favours and souvenirs for weddings and events.</h3>
+                   <h3> Get quotes, lead times and design help via WhatsApp.</h3>
+                  <div style={{ marginTop: '1.2rem' }}>
+                    <button className="btn btn-primary" onClick={openWhatsAppEnquiry}>Request Quote & Info via WhatsApp</button>
+                  </div>
+                </div>
+              </div>
             )}
 
             {activeView === 'gallery' && (

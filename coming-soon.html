@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Custom Keepsakes — Coming Soon</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700&family=Space+Grotesk:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#0f1419; --panel:#1e293b; --accent:#6366f1; --accent-2:#ec4899; --muted:#94a3b8; --text:#f1f5f9;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:'Space Grotesk',system-ui,Segoe UI,Arial;background:linear-gradient(135deg,#071020 0%,#0f1419 100%);color:var(--text)}
+    .wrap{max-width:1100px;margin:3.5rem auto;padding:1.25rem}
+    header{display:flex;align-items:center;justify-content:space-between;gap:1rem}
+    .brand{display:flex;align-items:center;gap:.8rem}
+    .logo{width:44px;height:44px;border-radius:8px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:center;font-weight:700}
+    h1{font-family:'Syne',sans-serif;font-size:clamp(1.6rem,3.6vw,2.4rem);margin:.2rem 0}
+    p.lead{color:var(--muted);max-width:60ch}
+    .hero{display:grid;grid-template-columns:1fr 420px;gap:2rem;align-items:center;margin-top:2rem}
+    .card{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.03);padding:1.25rem;border-radius:12px}
+    .features{display:grid;grid-template-columns:repeat(2,1fr);gap:.8rem;margin-top:1rem}
+    .feature{padding:.8rem;border-radius:8px;background:linear-gradient(180deg,rgba(255,255,255,0.01),transparent);border:1px solid rgba(255,255,255,0.02)}
+    .signup{display:flex;gap:.5rem;margin-top:1rem}
+    .signup input{flex:1;padding:.8rem;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:var(--text)}
+    .btn{background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#fff;padding:.85rem 1rem;border-radius:10px;border:0;cursor:pointer;font-weight:700}
+    .muted{color:var(--muted);font-size:.95rem}
+    .right-panel{display:flex;flex-direction:column;gap:1rem}
+    .preview{height:220px;border-radius:10px;background:linear-gradient(135deg,#111827,#0b1220);display:flex;align-items:center;justify-content:center;color:var(--muted)}
+    .ctas{display:flex;gap:.6rem;flex-wrap:wrap}
+    footer{margin-top:2.5rem;color:var(--muted);font-size:.95rem;text-align:center}
+    .cta-small{background:transparent;border:1px solid rgba(255,255,255,0.06);padding:.6rem;border-radius:8px;color:var(--text);cursor:pointer}
+    .gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:.6rem;margin-top:1rem}
+    .tile{height:96px;border-radius:8px;background:linear-gradient(135deg,rgba(255,255,255,0.02),transparent);display:flex;align-items:center;justify-content:center;color:var(--muted);font-weight:600}
+    @media(max-width:880px){.hero{grid-template-columns:1fr}.right-panel{order:-1}}
+    @media(max-width:520px){.wrap{margin:1.2rem;padding:.75rem}.brand span{display:none}.hero{gap:1rem}}
+    .success{background:linear-gradient(90deg,#052e22,#064e3b);padding:.6rem;border-radius:8px;color:#c7f7df}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <div class="logo">KG</div>
+        <div>
+          <div style="font-weight:700">Custom Keepsakes</div>
+          <div class="muted" style="font-size:.85rem">Printed gifts & souvenirs for weddings & events</div>
+        </div>
+      </div>
+      <div class="ctas">
+        <button class="cta-small" onclick="openWhatsApp()">Request Quote (WhatsApp)</button>
+        <a class="cta-small" href="mailto:hello@job87print.co.uk">Contact</a>
+      </div>
+    </header>
+
+    <main class="hero">
+      <section>
+        <h1>Beautiful custom printed gifts for your guests — coming soon</h1>
+        <p class="lead">Personalised keepsakes, wedding favours, corporate event gifts and more. We'll help you create beautiful, memorable gifts your guests will love.</p>
+
+        <div class="card">
+          <div class="muted">Be the first to know and get an exclusive early-bird discount</div>
+          <div style="display:flex;align-items:center;gap:.6rem;margin-top:.8rem">
+            <div style="flex:1">
+              <div class="signup">
+                <input id="email" type="email" placeholder="Your email address" />
+                <button class="btn" onclick="subscribe()">Notify me</button>
+              </div>
+              <div id="subscribeMsg" style="margin-top:.6rem"></div>
+            </div>
+          </div>
+
+          <div class="features">
+            <div class="feature">Wedding favours & guest gifts</div>
+            <div class="feature">Custom packaging & tags</div>
+            <div class="feature">Bulk pricing & quick turnaround</div>
+            <div class="feature">Design help & proofs</div>
+          </div>
+        </div>
+
+        <div style="margin-top:1rem" class="muted">Want a price fast? Use WhatsApp to send your event date, quantities and any sample text — we'll reply with options.</div>
+      </section>
+
+      <aside class="right-panel">
+        <div class="card" style="padding:1rem">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div><strong>Sample preview</strong><div class="muted" style="font-size:.85rem">Example gift mockups</div></div>
+            <div class="muted">Est launch: Q2</div>
+          </div>
+          <div class="preview" style="margin-top:1rem">Preview Area</div>
+
+          <div style="display:flex;gap:.6rem;margin-top:1rem">
+            <button class="btn" onclick="openWhatsApp()">Request Quote</button>
+            <button class="cta-small" onclick="openContact()">Email us</button>
+          </div>
+
+          <div style="margin-top:1rem">
+            <div class="muted">Samples</div>
+            <div class="gallery">
+              <div class="tile">Tote Bags</div>
+              <div class="tile">Mugs</div>
+              <div class="tile">Coasters</div>
+              <div class="tile">Keyrings</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card muted" style="text-align:center">We work with UK churches & event planners to create meaningful keepsakes.</div>
+      </aside>
+    </main>
+
+    <footer>
+      <div>© 2026 Custom Keepsakes • JOB87PRINT</div>
+      <div class="muted" style="margin-top:.5rem">Prefer WhatsApp? <button class="cta-small" onclick="openWhatsApp()">Message us</button></div>
+    </footer>
+  </div>
+
+  <script>
+    const BUSINESS_NUMBER = '447930951259'; // update to your international number without +
+
+    function openWhatsApp(){
+      const sanitized = BUSINESS_NUMBER.replace(/[^0-9]/g,'');
+      const text = encodeURIComponent('Hi! I\'d like a quote for custom event gifts.\nEvent date: \nQuantities: \nNotes: ');
+      window.open(`https://wa.me/${sanitized}?text=${text}`,'_blank');
+    }
+
+    function openContact(){
+      window.location.href = 'mailto:hello@job87print.co.uk?subject=Custom keepsakes enquiry';
+    }
+
+    function subscribe(){
+      const el = document.getElementById('email');
+      const msg = document.getElementById('subscribeMsg');
+      const v = (el.value||'').trim();
+      if(!v || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)){
+        msg.innerHTML = '<div class="muted">Please enter a valid email</div>';
+        return;
+      }
+      let list = JSON.parse(localStorage.getItem('ck_subs')||'[]');
+      if(list.includes(v)){
+        msg.innerHTML = '<div class="muted">You\'re already signed up — thank you!</div>';
+        return;
+      }
+      list.push(v);
+      localStorage.setItem('ck_subs', JSON.stringify(list));
+      msg.innerHTML = '<div class="success">Thanks — we\'ll email you when we launch.</div>';
+      el.value = '';
+    }
+  </script>
+</body>
+</html>
