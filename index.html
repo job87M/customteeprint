@@ -82,6 +82,7 @@
       justify-content: space-between;
       align-items: center;
       gap: 2rem;
+      position: relative;
     }
 
     .logo {
@@ -759,7 +760,7 @@
       }
 
       .hamburger {
-        display: flex;
+        display: flex !important;
         align-items: center;
         justify-content: center;
       }
@@ -904,16 +905,23 @@
     }
     /* ===== MOBILE NAV & HAMBURGER ===== */
     .hamburger {
+      /* Hidden by default; becomes visible at mobile breakpoint (display controlled in media query) */
       display: none;
       background: transparent;
       border: none;
-      width: 42px;
-      height: 36px;
+      width: 46px;
+      height: 42px;
       align-items: center;
       justify-content: center;
       cursor: pointer;
       padding: 6px;
       border-radius: 8px;
+      flex-direction: column;
+      gap: 4px;
+      margin-left: auto;
+      align-self: center;
+      z-index: 9999;
+      position: relative;
     }
 
     .hamburger:focus {
@@ -923,12 +931,19 @@
 
     .hamburger .bar {
       display: block;
-      height: 3px;
-      width: 22px;
-      background: var(--text-secondary);
-      margin: 4px 0;
-      border-radius: 2px;
-      transition: all 0.25s ease;
+      height: 4px;
+      width: 26px;
+      background: var(--text-primary) !important;
+      margin: 3px 0;
+      border-radius: 3px;
+      transition: all 0.18s ease;
+      box-shadow: 0 1px 0 rgba(0,0,0,0.35);
+    }
+
+    /* increase contrast if background similar to bar color */
+    .hamburger:focus .bar,
+    .hamburger:hover .bar {
+      background: var(--text-primary);
     }
 
     .mobile-nav-overlay {
@@ -1168,9 +1183,9 @@
 
               {/* Hamburger for mobile */}
               <button className="hamburger" aria-label="Open menu" onClick={toggleMobileMenu}>
-                <span className="bar" />
-                <span className="bar" />
-                <span className="bar" />
+                <span className="bar"></span>
+                <span className="bar"></span>
+                <span className="bar"></span>
               </button>
 
               {/* Mobile slide-in menu + overlay */}
@@ -1345,7 +1360,10 @@
                       <button className="btn btn-primary" onClick={sendViaWhatsApp}>Send via WhatsApp</button>
                       <button className="btn btn-secondary" onClick={resetQuantities}>Reset</button>
                     </div>
+                    <p style={{marginTop: '30px'}}>** Please take note that the total price is indicative only and also does not include delivery cost.  We'll be in touch as soon as we receive your request</p>
                   </div>
+                  
+
                 </div>
               </>
             )}
