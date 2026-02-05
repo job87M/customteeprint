@@ -16,7 +16,7 @@
   <div id="root"></div>
 
   <script type="text/babel">
-    const { useState } = React;
+  const { useState, useEffect } = React;
 
     function App() {
       const [activeView, setActiveView] = useState('quote');
@@ -50,6 +50,8 @@
       const [contactName, setContactName] = useState('');
       const [contactEmail, setContactEmail] = useState('');
       const BUSINESS_NUMBER = '447930951259';
+  // Price map loaded from prices.xml (optional). Structure: { apparelId: { base: { front: num, back: num, both: num }, large: {...} } }
+  const [priceMap, setPriceMap] = useState(null);
       const [needBy, setNeedBy] = useState('');
       const [printType, setPrintType] = useState('front');
       const [projectDetails, setProjectDetails] = useState('');
@@ -77,6 +79,21 @@
       const priceFor = (appId, size, pType = printType) => {
         const isLarge = ['3XL', '4XL', '5XL'].includes(size);
         const sizeCat = isLarge ? 'large' : 'base';
+
+        // Prefer prices loaded from prices.xml when available
+        try {
+          if (priceMap && priceMap[appId] && priceMap[appId][sizeCat]) {
+            const v = priceMap[appId][sizeCat][pType];
+            if (typeof v === 'number') return v;
+            // fallback heuristics: prefer 'front' then 'both' if requested type missing
+            const fallback = priceMap[appId][sizeCat]['front'] ?? priceMap[appId][sizeCat]['both'];
+            if (typeof fallback === 'number') return fallback;
+          }
+        } catch (e) {
+          console.warn('priceMap read error', e);
+        }
+
+        // Legacy hardcoded prices (used when prices.xml is missing or incomplete)
         if (pType === 'both') {
           if (appId === 'tshirt') return isLarge ? 14.0 : 13.5;
           if (appId === 'sweater') return isLarge ? 19.5 : 21.0;
@@ -195,6 +212,43 @@
         setSignupMsg('Thanks — we\'ll email you when we launch.');
         setSignupEmail('');
       };
+
+      // Load prices.xml (if present) so prices can be edited without changing code.
+      useEffect(() => {
+        const load = async () => {
+          try {
+            const res = await fetch('prices.xml', { cache: 'no-cache' });
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            const txt = await res.text();
+            const parser = new DOMParser();
+            const xml = parser.parseFromString(txt, 'application/xml');
+            const map = {};
+            const apparelEls = xml.querySelectorAll('apparel');
+            apparelEls.forEach(appEl => {
+              const id = appEl.getAttribute('id');
+              if (!id) return;
+              map[id] = map[id] || { base: {}, large: {} };
+              const priceEls = appEl.querySelectorAll('price');
+              priceEls.forEach(p => {
+                const type = p.getAttribute('type') || 'base';
+                const print = p.getAttribute('print') || 'front';
+                const raw = (p.textContent || '').trim();
+                const v = parseFloat(raw);
+                if (!Number.isNaN(v)) {
+                  map[id][type] = map[id][type] || {};
+                  map[id][type][print] = v;
+                }
+              });
+            });
+            // only set if we found entries
+            if (Object.keys(map).length > 0) setPriceMap(map);
+          } catch (err) {
+            // silently continue - fallback to hardcoded prices
+            console.warn('prices.xml not loaded:', err);
+          }
+        };
+        load();
+      }, []);
 
       const templateDesigns = [
         { id: 'none', name: 'No Template', url: '' },

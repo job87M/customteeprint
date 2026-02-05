@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<prices>
+  <!-- Prices structured by apparel id, size type (base / large), and print type (front/back/both) -->
+  <apparel id="tshirt">
+    <price type="base" print="front">8.5</price>
+    <price type="large" print="front">9.0</price>
+    <price type="base" print="both">11.0</price>
+    <price type="large" print="both">12.5</price>
+  </apparel>
+
+  <apparel id="sweater">
+    <price type="base" print="front">14.0</price>
+    <price type="large" print="front">14.50</price>
+    <price type="base" print="both">17.0</price>
+    <price type="large" print="both">18.0</price>
+  </apparel>
+
+  <apparel id="hoody">
+    <price type="base" print="front">16.0</price>
+    <price type="large" print="front">16.5</price>
+    <price type="base" print="both">19.50</price>
+    <price type="large" print="both">21.5</price>
+  </apparel>
+</prices>
