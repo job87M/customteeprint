@@ -775,8 +775,8 @@
       }
 
       /* Hide full nav on smaller screens, show compact hamburger */
-      nav {
-        display: none;
+      nav.main-nav {
+        display: none !important;
         width: 100%;
         justify-content: center;
         flex-wrap: wrap;
@@ -2575,11 +2575,6 @@
     .gallery-section,
     .about-section {
       padding: 3rem 0;
-    }
-
-    .main-nav {
-      display: flex;
-      gap: 1rem;
     }
 
     footer {
