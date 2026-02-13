@@ -11,6 +11,7 @@
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <link rel="stylesheet" href="styles.css">
+ 
 </head>
 <body>
   <div id="root"></div>
@@ -19,7 +20,7 @@
   const { useState, useEffect } = React;
 
     function App() {
-      const [activeView, setActiveView] = useState('quote');
+      const [activeView, setActiveView] = useState('home');
       const [designText, setDesignText] = useState('YOUR DESIGN');
       const [subText, setSubText] = useState('Inspire & Impact');
       const [shirtColor, setShirtColor] = useState('#2d5541');
@@ -29,7 +30,7 @@
   const [selectedTemplate, setSelectedTemplate] = useState('none');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-      const sizes = ['XS', 'S', 'M', 'L', 'XL', '2XL', '3XL', '4XL', '5XL'];
+      const sizes = ['XS', 'S', 'M', 'L', 'XL', '2XL', '3XL', '4XL'];
       const apparels = [
         { id: 'tshirt', label: 'T-Shirt' },
         { id: 'sweater', label: 'Sweater' },
@@ -49,7 +50,66 @@
       const [orgName, setOrgName] = useState('');
       const [contactName, setContactName] = useState('');
       const [contactEmail, setContactEmail] = useState('');
-      const BUSINESS_NUMBER = '447930951259';
+      const availableColors = [
+        { id: 'black', hex: '#000000', name: 'Black' },
+        { id: 'white', hex: '#FFFFFF', name: 'White' },
+        { id: 'red', hex: '#DC143C', name: 'Red' },
+        { id: 'blue', hex: '#0066CC', name: 'Royal Blue' },
+        { id: 'green', hex: '#228B22', name: 'Forest Green' },
+        { id: 'gold', hex: '#FFD700', name: 'Gold' },
+        { id: 'burgundy', hex: '#800020', name: 'Burgundy' },
+        { id: 'purple', hex: '#9370DB', name: 'Purple' },
+        { id: 'orange', hex: '#FF8C00', name: 'Orange' }
+      ];
+      const [selectedColors, setSelectedColors] = useState([]);
+      
+      // Youth sizing breakdown
+      const youthSizes = ['1/2 yrs', '3/4 yrs', '5/6 yrs', '7/8 yrs', '9/11 yrs', '12/13 yrs'];
+      const adultSizes = ['XS', 'S', 'M', 'L', 'XL', '2XL', '3XL', '4XL'];
+      
+      const makeInitialYouthQuantities = () => {
+        const init = {};
+        apparels.forEach(a => {
+          init[a.id] = {};
+          youthSizes.forEach(s => init[a.id][s] = 0);
+        });
+        return init;
+      };
+      const [youthQuantities, setYouthQuantities] = useState(makeInitialYouthQuantities());
+      const [showYouthBreakdown, setShowYouthBreakdown] = useState(false);
+
+      // New apparel-based breakdown system
+      const [selectedApparel, setSelectedApparel] = useState(null); // 'tshirt', 'sweater', 'hoody', or null
+      const [apparelOrders, setApparelOrders] = useState({}); // { tshirt: [{color, sizes}], ... }
+      const [colorSizeBreakdown, setColorSizeBreakdown] = useState({}); // { colorId: { 1/2yrs: qty, ... }, ... }
+      const [sizeType, setSizeType] = useState('youth'); // 'youth' or 'adult'
+      const [flashMessage, setFlashMessage] = useState(null); // { type: 'error'|'warning'|'success', text: '...' }
+
+      // Flash notification helper
+      useEffect(() => {
+        if (flashMessage) {
+          const timer = setTimeout(() => {
+            setFlashMessage(null);
+          }, 3500);
+          return () => clearTimeout(timer);
+        }
+      }, [flashMessage]);
+
+      // Youth sizing prices
+      const youthPrices = {
+        'tshirt': 6.5,
+        'sweater': 10.0,
+        'hoody': 13.0
+      };
+
+      // Adult sizing prices
+      const adultPrices = {
+        'tshirt': 8.5,
+        'sweater': 14.0,
+        'hoody': 16.0
+      };
+
+      const BUSINESS_NUMBER = '44123456789';
   // Price map loaded from prices.xml (optional). Structure: { apparelId: { base: { front: num, back: num, both: num }, large: {...} } }
   const [priceMap, setPriceMap] = useState(null);
       const [needBy, setNeedBy] = useState('');
@@ -64,6 +124,14 @@
         }));
       };
 
+      const handleYouthQuantityChange = (appId, size, value) => {
+        const v = Math.max(0, parseInt(value || 0, 10));
+        setYouthQuantities(prev => ({
+          ...prev,
+          [appId]: { ...prev[appId], [size]: Number.isNaN(v) ? 0 : v }
+        }));
+      };
+
       const computeApparelTotal = (appId) => {
         return Object.values(quantities[appId] || {}).reduce((a, b) => a + Number(b || 0), 0);
       };
@@ -73,7 +141,7 @@
       };
 
       const computeOverallTotal = () => {
-        return apparels.reduce((sum, a) => sum + computeApparelTotal(a.id), 0);
+        return apparels.reduce((sum, a) => sum + getTotalForApparelOrder(a.id), 0);
       };
 
       const priceFor = (appId, size, pType = printType) => {
@@ -110,11 +178,176 @@
       };
 
       const computeGrandPriceTotal = () => {
-        return apparels.reduce((sum, a) => sum + computeApparelPriceTotal(a.id), 0);
+        return apparels.reduce((sum, a) => sum + getTotalPriceForApparelOrder(a.id), 0);
+      };
+
+      // Youth pricing functions
+      const computeYouthApparelPriceTotal = (appId) => {
+        return youthSizes.reduce((sum, size) => sum + (Number(youthQuantities[appId][size] || 0) * youthPrices[appId]), 0);
+      };
+
+      const computeYouthGrandPriceTotal = () => {
+        return apparels.reduce((sum, a) => sum + computeYouthApparelPriceTotal(a.id), 0);
       };
 
       const formatGBP = (v) => '£' + Number(v || 0).toFixed(2);
       const resetQuantities = () => setQuantities(makeInitialQuantities());
+
+      // Color selection functions
+      const toggleColor = (colorId) => {
+        if (selectedColors.includes(colorId)) {
+          setSelectedColors(selectedColors.filter(c => c !== colorId));
+        } else {
+          setSelectedColors([...selectedColors, colorId]);
+        }
+      };
+
+      const isColorSelected = (colorId) => selectedColors.includes(colorId);
+
+      // Handlers for apparel breakdown system
+      const selectApparel = (apparelId) => {
+        setSelectedApparel(apparelId);
+        // Initialize color-size breakdown for selected colors
+        const breakdown = {};
+        selectedColors.forEach(colorId => {
+          breakdown[colorId] = {};
+          youthSizes.forEach(size => {
+            breakdown[colorId][size] = 0;
+          });
+        });
+        setColorSizeBreakdown(breakdown);
+      };
+
+      const updateColorSizeQty = (colorId, size, value) => {
+        const v = Math.max(0, parseInt(value || 0, 10));
+        setColorSizeBreakdown(prev => ({
+          ...prev,
+          [colorId]: {
+            ...prev[colorId],
+            [size]: Number.isNaN(v) ? 0 : v
+          }
+        }));
+      };
+
+      const getColorName = (colorId) => {
+        const color = selectedColors.includes(colorId) ? availableColors.find(c => c.id === colorId) : null;
+        return color ? color.name : colorId;
+      };
+
+      const getApparelLabel = (apparelId) => {
+        const app = apparels.find(a => a.id === apparelId);
+        return app ? app.label : apparelId;
+      };
+
+      const getApparelPrice = (apparelId) => {
+        if (sizeType === 'adult') {
+          return adultPrices[apparelId] || 0;
+        }
+        return youthPrices[apparelId] || 0;
+      };
+
+      const confirmApparelOrder = () => {
+        if (!selectedApparel || Object.keys(colorSizeBreakdown).length === 0) {
+          alert('Please select colors and quantities');
+          return;
+        }
+
+        // Check if any quantities entered
+        const hasQuantities = Object.values(colorSizeBreakdown).some(colorBreakdown =>
+          Object.values(colorBreakdown).some(qty => qty > 0)
+        );
+
+        if (!hasQuantities) {
+          alert('Please enter at least one quantity');
+          return;
+        }
+
+        // Add to apparelOrders with sizeType
+        const apparelId = selectedApparel;
+        const newOrder = {
+          colors: { ...colorSizeBreakdown },
+          sizeType: sizeType
+        };
+
+        setApparelOrders(prev => ({
+          ...prev,
+          [apparelId]: (prev[apparelId] || []).concat(newOrder)
+        }));
+
+        // Reset breakdown form
+        setColorSizeBreakdown({});
+        setSelectedApparel(null);
+        setSizeType('youth');
+      };
+
+      const hasUnsavedChanges = () => {
+        return Object.values(colorSizeBreakdown).some(colorBreakdown =>
+          Object.values(colorBreakdown).some(qty => qty > 0)
+        );
+      };
+
+      const hasConfirmedOrders = () => {
+        return Object.values(apparelOrders).some(orders => orders && orders.length > 0);
+      };
+
+      const handleSizeTypeChange = (newSizeType) => {
+        if (hasUnsavedChanges()) {
+          setFlashMessage({
+            type: 'warning',
+            text: 'You have unsaved quantities. Please confirm your order or cancel before switching sizes.'
+          });
+          return;
+        }
+        setSizeType(newSizeType);
+        setColorSizeBreakdown({});
+      };
+
+      const removeApparelOrder = (apparelId, index) => {
+        setApparelOrders(prev => {
+          const updated = [...prev[apparelId]];
+          updated.splice(index, 1);
+          return {
+            ...prev,
+            [apparelId]: updated.length > 0 ? updated : undefined
+          };
+        });
+      };
+
+      const editApparelOrder = (apparelId, index) => {
+        const order = apparelOrders[apparelId][index];
+        // Load the order data back into the form
+        setSelectedApparel(apparelId);
+        setSizeType(order.sizeType);
+        setColorSizeBreakdown(JSON.parse(JSON.stringify(order.colors)));
+        
+        // Remove this order from the list so it can be re-confirmed
+        removeApparelOrder(apparelId, index);
+        
+        // Scroll to form
+        setTimeout(() => {
+          document.querySelector('.breakdown-form')?.scrollIntoView({ behavior: 'smooth' });
+        }, 100);
+      };
+
+      const getTotalForApparelOrder = (apparelId) => {
+        return (apparelOrders[apparelId] || []).reduce((sum, order) => {
+          const orderTotal = Object.values(order.colors).reduce((colorSum, colorBreakdown) =>
+            colorSum + Object.values(colorBreakdown).reduce((a, b) => a + Number(b || 0), 0), 0);
+          return sum + orderTotal;
+        }, 0);
+      };
+
+      const getTotalPriceForApparelOrder = (apparelId) => {
+        return (apparelOrders[apparelId] || []).reduce((sum, order) => {
+          const orderQty = Object.values(order.colors).reduce((colorSum, colorBreakdown) =>
+            colorSum + Object.values(colorBreakdown).reduce((a, b) => a + Number(b || 0), 0), 0);
+          
+          // Get the correct price based on the order's sizeType
+          const price = order.sizeType === 'adult' ? adultPrices[apparelId] : youthPrices[apparelId];
+          return sum + (orderQty * price);
+        }, 0);
+      };
+
 
       const buildWhatsAppMessage = () => {
         const lines = [];
@@ -132,15 +365,73 @@
           lines.push(projectDetails);
           lines.push('');
         }
-        apparels.forEach(app => {
-          const qtyTotal = computeApparelTotal(app.id);
-          if (qtyTotal === 0) return;
-          lines.push(`${app.label}: ${qtyTotal} (${formatGBP(computeApparelPriceTotal(app.id))})`);
-          sizes.forEach(size => {
-            const q = Number(quantities[app.id][size] || 0);
-            if (q > 0) lines.push(`  ${size}: ${q} @ ${formatGBP(priceFor(app.id, size, printType))}`);
+        if (selectedColors.length > 0) {
+          lines.push('Required Colours:');
+          selectedColors.forEach(colorId => {
+            const colorInfo = availableColors.find(c => c.id === colorId);
+            if (colorInfo) {
+              lines.push(`  - ${colorInfo.name}`);
+            }
           });
+          lines.push('');
+        }
+        
+        // New format: apparel-based orders with color breakdown - includes both youth and adult
+        let hasOrders = false;
+        apparels.forEach(app => {
+          if (!apparelOrders[app.id] || apparelOrders[app.id].length === 0) return;
+          hasOrders = true;
+          
+          lines.push(`${app.label.toUpperCase()} ORDER:`);
+          apparelOrders[app.id].forEach((order, orderIdx) => {
+            // Check if this order is youth or adult based on keys in the order
+            const isAdult = order.sizeType === 'adult';
+            const sizesArray = isAdult ? adultSizes : youthSizes;
+            const price = isAdult ? adultPrices[app.id] : youthPrices[app.id];
+            
+            let orderTotalQty = 0;
+            let orderTotalPrice = 0;
+            
+            selectedColors.forEach(colorId => {
+              const colorBreakdown = order.colors[colorId];
+              if (!colorBreakdown) return;
+              
+              const colorInfo = availableColors.find(c => c.id === colorId);
+              const colorName = colorInfo ? colorInfo.name : colorId;
+              const colorQtyTotal = Object.values(colorBreakdown).reduce((a, b) => a + Number(b || 0), 0);
+              
+              if (colorQtyTotal > 0) {
+                lines.push(`  ${colorName}:`);
+                sizesArray.forEach(size => {
+                  const qty = Number(colorBreakdown[size] || 0);
+                  if (qty > 0) {
+                    lines.push(`    ${size}: ${qty}`);
+                    orderTotalQty += qty;
+                  }
+                });
+                const colorSubtotal = colorQtyTotal * price;
+                orderTotalPrice += colorSubtotal;
+                lines.push(`    Subtotal: ${colorQtyTotal} @ £${price.toFixed(2)} = ${formatGBP(colorSubtotal)}`);
+              }
+            });
+            
+            if (orderIdx < apparelOrders[app.id].length - 1) {
+              lines.push('  ---');
+            }
+          });
+          
+          const totalQty = getTotalForApparelOrder(app.id);
+          const totalPrice = getTotalPriceForApparelOrder(app.id);
+          lines.push(`Total ${app.label}: ${totalQty} items (${formatGBP(totalPrice)})`);
+          lines.push('');
         });
+        
+        if (hasOrders) {
+          const grandTotal = apparels.reduce((sum, app) => sum + getTotalPriceForApparelOrder(app.id), 0);
+          const grandQty = apparels.reduce((sum, app) => sum + getTotalForApparelOrder(app.id), 0);
+          lines.push(`GRAND TOTAL: ${grandQty} items (${formatGBP(grandTotal)})`);
+        }
+        
         lines.push('');
         lines.push(`Total items: ${computeOverallTotal()}`);
         lines.push(`Total: ${formatGBP(computeGrandPriceTotal())}`);
@@ -303,12 +594,14 @@
                 <div className="logo-icon">✨</div>
                 <span>JOB87PRINT</span>
               </div>
-              <nav>
+              <nav className="main-nav">
+                <button className={activeView === 'home' ? 'active' : ''} onClick={() => { setActiveView('home'); setMobileMenuOpen(false); }}>Home</button>
                 <button className={activeView === 'design' ? 'active' : ''} onClick={() => { setActiveView('design'); setMobileMenuOpen(false); }}>Design Studio</button>
                 <button className={activeView === 'quote' ? 'active' : ''} onClick={() => { setActiveView('quote'); setMobileMenuOpen(false); }}>Get Quote</button>
                 <button className={activeView === 'gallery' ? 'active' : ''} onClick={() => { setActiveView('gallery'); setMobileMenuOpen(false); }}>Gallery</button>
-                  <button className={activeView === 'coming' ? 'active' : ''} onClick={() => { setActiveView('coming'); setMobileMenuOpen(false); }}>Souvenirs & Gifts</button>
-                  <button className={activeView === 'about' ? 'active' : ''} onClick={() => { setActiveView('about'); setMobileMenuOpen(false); }}>About</button>
+               {/*  <button className={activeView === 'contact' ? 'active' : ''} onClick={() => { setActiveView('contact'); setMobileMenuOpen(false); }}>Contact Us</button> */}
+                <button className={activeView === 'coming' ? 'active' : ''} onClick={() => { setActiveView('coming'); setMobileMenuOpen(false); }}>Souvenirs & Gifts</button>
+                <button className={activeView === 'about' ? 'active' : ''} onClick={() => { setActiveView('about'); setMobileMenuOpen(false); }}>About</button>
               </nav>
 
               {/* Hamburger for mobile */}
@@ -321,19 +614,227 @@
               {/* Mobile slide-in menu + overlay */}
               {mobileMenuOpen && (
                 <div className="mobile-nav-overlay" onClick={() => setMobileMenuOpen(false)}>
-                  <div className={`mobile-nav ${mobileMenuOpen ? 'open' : ''}`} onClick={(e) => e.stopPropagation()}>
+                  <nav className={`mobile-nav ${mobileMenuOpen ? 'open' : ''}`} onClick={(e) => e.stopPropagation()}>
+                    <button className={activeView === 'home' ? 'active mobile-link' : 'mobile-link'} onClick={() => { setActiveView('home'); setMobileMenuOpen(false); }}>Home</button>
                     <button className={activeView === 'design' ? 'active mobile-link' : 'mobile-link'} onClick={() => { setActiveView('design'); setMobileMenuOpen(false); }}>Design Studio</button>
                     <button className={activeView === 'quote' ? 'active mobile-link' : 'mobile-link'} onClick={() => { setActiveView('quote'); setMobileMenuOpen(false); }}>Get Quote</button>
                     <button className={activeView === 'gallery' ? 'active mobile-link' : 'mobile-link'} onClick={() => { setActiveView('gallery'); setMobileMenuOpen(false); }}>Gallery</button>
+{/*                     <button className={activeView === 'contact' ? 'active mobile-link' : 'mobile-link'} onClick={() => { setActiveView('contact'); setMobileMenuOpen(false); }}>Contact Us</button> */}                    
                     <button className={activeView === 'coming' ? 'active mobile-link' : 'mobile-link'} onClick={() => { setActiveView('coming'); setMobileMenuOpen(false); }}>Souvenirs & Gifts</button>
                     <button className={activeView === 'about' ? 'active mobile-link' : 'mobile-link'} onClick={() => { setActiveView('about'); setMobileMenuOpen(false); }}>About</button>
-                  </div>
+                  </nav>
                 </div>
               )}
             </div>
           </header>
 
           <main>
+            {activeView === 'home' && (
+              <>
+                {/* Hero Section */}
+                <section className="hero-section">
+                  <div className="hero-background">
+                    <div className="hero-blob blob-1"></div>
+                    <div className="hero-blob blob-2"></div>
+                    <div className="hero-blob blob-3"></div>
+                  </div>
+                  
+                  <div className="hero-content">
+                    <div className="hero-text">
+                      <h1 className="hero-title">
+                        Premium <span className="hero-title-accent">Design & Print</span> for Your Brand or Ministry
+                      </h1>
+                      <p className="hero-subtitle">
+                        Flyers, apparel, and custom gifts that elevate your brand. Precision design meets premium production. Fast. Reliable. Stunning.
+                      </p>
+                      <div className="hero-cta-group">
+                        <button className="btn btn-primary btn-large" onClick={() => setActiveView('quote')}>
+                          Get Quote
+                        </button>
+                        <button className="btn btn-secondary btn-large" onClick={() => setActiveView('gallery')}>
+                          See Work
+                        </button>
+                      </div>
+                      <div className="hero-stats">
+                        <div className="stat-item">
+                          <span className="stat-number">Counting+</span>
+                          <span className="stat-label">Projects</span>
+                        </div>
+                        <div className="stat-item">
+                          <span className="stat-number">48hrs</span>
+                          <span className="stat-label">Express</span>
+                        </div>
+                        <div className="stat-item">
+                          <span className="stat-number">100%</span>
+                          <span className="stat-label">Quality</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="hero-visual">
+                      <div className="hero-visual-card card-1">
+                        <div className="visual-card-title">Flyers</div>
+                        <div className="visual-card-text">Eye-catching designs that drive engagement</div>
+                      </div>
+                      <div className="hero-visual-card card-2">
+                        <div className="visual-card-title">Apparel</div>
+                        <div className="visual-card-text">Custom branded clothing for any occasion</div>
+                      </div>
+                      <div className="hero-visual-card card-3">
+                        <div className="visual-card-title">Souvenirs</div>
+                        <div className="visual-card-text">Memorable gifts for weddings and events</div>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+
+                {/* Services Grid */}
+                <section className="services-section">
+                  <div className="section-header">
+                    <h2 className="section-title">Services</h2>
+                    <p className="section-subtitle">Complete design and printing solutions tailored to your vision</p>
+                  </div>
+
+                  <div className="services-grid">
+                    {/* Flyers Service Card */}
+                    <div className="service-card">
+                      <div className="service-icon">
+                        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <rect x="15" y="20" width="70" height="60" rx="4" stroke="currentColor" strokeWidth="3"/>
+                          <line x1="15" y1="35" x2="85" y2="35" stroke="currentColor" strokeWidth="2"/>
+                          <rect x="25" y="45" width="50" height="3" fill="currentColor"/>
+                          <rect x="25" y="53" width="45" height="3" fill="currentColor"/>
+                          <rect x="25" y="61" width="40" height="3" fill="currentColor"/>
+                        </svg>
+                      </div>
+                      <h3>Custom Flyers</h3>
+                      <p>Bold, beautiful flyers that make an impact. From concept to delivery.</p>
+                      <ul className="service-features">
+                        <li>A4 & A5</li>
+                        <li>Full Color</li>
+                        <li>Premium Stock</li>
+                        <li>Express Delivery</li>
+                      </ul>
+                      <button className="service-btn" onClick={() => setActiveView('contact')}>Get Quote</button>
+                    </div>
+
+                    {/* Apparel Service Card */}
+                    <div className="service-card">
+                      <div className="service-icon">
+                        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M30 25L35 45L50 40L65 45L70 25C70 25 50 30 30 25Z" stroke="currentColor" strokeWidth="3" fill="none"/>
+                          <path d="M35 45L30 75L40 70L50 75L60 70L70 75L65 45" stroke="currentColor" strokeWidth="3" fill="none"/>
+                          <circle cx="40" cy="55" r="3" fill="currentColor"/>
+                          <circle cx="60" cy="55" r="3" fill="currentColor"/>
+                        </svg>
+                      </div>
+                      <h3>Branded Apparel</h3>
+                      <p>T-shirts, hoodies, and more. Custom designs at scale.</p>
+                      <ul className="service-features">
+                        <li>Multiple Types</li>
+                        <li>All Sizes</li>
+                        <li>Unlimited Colors</li>
+                        <li>Bulk Pricing</li>
+                      </ul>
+                      <button className="service-btn" onClick={() => setActiveView('quote')}>Get Quote</button>
+                    </div>
+
+                    {/* Souvenirs Service Card */}
+                    <div className="service-card">
+                      <div className="service-icon">
+                        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <rect x="25" y="30" width="50" height="50" rx="3" stroke="currentColor" strokeWidth="3"/>
+                          <circle cx="50" cy="50" r="8" stroke="currentColor" strokeWidth="2"/>
+                          <path d="M35 40C35 35 40 30 45 30" stroke="currentColor" strokeWidth="2"/>
+                          <path d="M65 40C65 35 60 30 55 30" stroke="currentColor" strokeWidth="2"/>
+                          <rect x="30" y="45" width="5" height="20" fill="currentColor" opacity="0.5"/>
+                          <rect x="65" y="45" width="5" height="20" fill="currentColor" opacity="0.5"/>
+                        </svg>
+                      </div>
+                      <h3>Gift Souvenirs</h3>
+                      <p>Personalized keepsakes for every celebration and milestone.</p>
+                      <ul className="service-features">
+                        <li>Personalized</li>
+                        <li>Event Favours</li>
+                        <li>Premium Feel</li>
+                        <li>Custom Packaging</li>
+                      </ul>
+                      <button className="service-btn" onClick={() => setActiveView('coming')}>Enquire</button>
+                    </div>
+                  </div>
+                </section>
+
+                {/* Why Choose Us */}
+                <section className="why-us-section">
+                  <div className="why-us-container">
+                    <div className="why-us-content">
+                      <h2 className="section-title">Why Work With Us</h2>
+                      <p style={{ fontSize: '1.1rem', color: 'rgba(255, 255, 255, 0.65)', marginBottom: '2.5rem', lineHeight: 1.8 }}>
+                        We combine creative expertise with production excellence. Your brand or ministry projects deserves nothing less.
+                      </p>
+                      
+                      <div className="features-list">
+                        <div className="feature-item">
+                          <div className="feature-check">✓</div>
+                          <div>
+                            <h4>Expert Design</h4>
+                            <p>Concept to completion. We handle every detail.</p>
+                          </div>
+                        </div>
+                        <div className="feature-item">
+                          <div className="feature-check">✓</div>
+                          <div>
+                            <h4>Premium Quality</h4>
+                            <p>Finest materials. Best production standards.</p>
+                          </div>
+                        </div>
+                        <div className="feature-item">
+                          <div className="feature-check">✓</div>
+                          <div>
+                            <h4>Fast Turnaround</h4>
+                            <p>Express options for urgent projects.</p>
+                          </div>
+                        </div>
+                        <div className="feature-item">
+                          <div className="feature-check">✓</div>
+                          <div>
+                            <h4>Transparent Pricing</h4>
+                            <p>Clear quotes. Bulk discounts available.</p>
+                          </div>
+                        </div>
+                        <div className="feature-item">
+                          <div className="feature-check">✓</div>
+                          <div>
+                            <h4>Professional Proofs</h4>
+                            <p>Review before production. Peace of mind.</p>
+                          </div>
+                        </div>
+                        <div className="feature-item">
+                          <div className="feature-check">✓</div>
+                          <div>
+                            <h4>Always Available</h4>
+                            <p>Quick WhatsApp support whenever you need.</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+
+                {/* CTA Section */}
+                <section className="cta-section">
+                  <div className="cta-content">
+                    <h2>Ready to Print?</h2>
+                    <p>Let's create something extraordinary together.</p>
+                    <div style={{ display: 'flex', gap: '1rem', marginTop: '2.5rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+                      <button className="btn btn-primary btn-large" onClick={() => setActiveView('quote')}>Get Quote</button>
+                      <button className="btn btn-secondary btn-large" onClick={openWhatsAppEnquiry}>WhatsApp Us</button>
+                    </div>
+                  </div>
+                </section>
+              </>
+            )}
+
             {activeView === 'design' && (
               <>
                 <div className="hero">
@@ -362,12 +863,12 @@
                       </select>
                     </div>
 
-                    <div className="control-group">
+               {  /*    <div className="control-group">
                       <label>Design Template</label>
                       <select value={selectedTemplate} onChange={(e) => setSelectedTemplate(e.target.value)}>
                         {templateDesigns.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
                       </select>
-                    </div>
+                    </div> */}
 
                     <div className="control-group">
                       <label>Shirt Color</label>
@@ -423,7 +924,7 @@
 
                 <div className="quote-section">
                   <div className="form-container">
-                    <div className="form-grid">
+                    <div className="form-grid" style={{ gridTemplateColumns: 'repeat(2, 1fr)' }}>
                       <div className="control-group">
                         <label>Organization Name</label>
                         <input type="text" value={orgName} onChange={(e) => setOrgName(e.target.value)} placeholder="Church / Organization" />
@@ -440,57 +941,416 @@
                         <label>Need By Date</label>
                         <input type="date" value={needBy} onChange={(e) => setNeedBy(e.target.value)} />
                       </div>
-                      <div className="control-group form-grid full">
-                        <select value={printType} onChange={(e) => setPrintType(e.target.value)} style={{ gridColumn: '1 / 2' }}>
-                          <option value="front">Front Only</option>
-                          <option value="back">Back Only</option>
-                          <option value="both">Front & Back</option>
-                        </select>
+                      <div className="control-group" style={{ gridColumn: '1 / -1' }}>
+                        <label>Print Type *</label>
+                        <div className="print-type-radios">
+                          <div className="radio-option">
+                            <input 
+                              type="radio" 
+                              id="printFront" 
+                              name="printType" 
+                              value="front"
+                              checked={printType === 'front'}
+                              onChange={(e) => setPrintType(e.target.value)}
+                            />
+                            <label htmlFor="printFront">Front Only</label>
+                          </div>
+                          <div className="radio-option">
+                            <input 
+                              type="radio" 
+                              id="printBack" 
+                              name="printType" 
+                              value="back"
+                              checked={printType === 'back'}
+                              onChange={(e) => setPrintType(e.target.value)}
+                            />
+                            <label htmlFor="printBack">Back Only</label>
+                          </div>
+                          <div className="radio-option">
+                            <input 
+                              type="radio" 
+                              id="printFull" 
+                              name="printType" 
+                              value="both"
+                              checked={printType === 'both'}
+                              onChange={(e) => setPrintType(e.target.value)}
+                            />
+                            <label htmlFor="printFull">Full (Front & Back)</label>
+                          </div>
+                        </div>
                       </div>
-                      <div className="control-group form-grid full">
+                      <div className="control-group" style={{ gridColumn: '1 / -1' }}>
+                        <label>Project Details</label>
                         <textarea value={projectDetails} onChange={(e) => setProjectDetails(e.target.value)} placeholder="Special requirements, colors, etc." />
                       </div>
                     </div>
 
-                    <div className="table-wrapper">
-                      <table>
-                        <thead>
-                          <tr>
-                            <th>Item</th>
-                            {sizes.map(s => <th key={s}>{s}</th>)}
-                            <th>Total</th>
-                            <th>Price</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {apparels.map(app => (
-                            <tr key={app.id}>
-                              <td style={{ textAlign: 'left' }}><strong>{app.label}</strong></td>
-                              {sizes.map(size => (
-                                <td key={size}>
-                                  <input type="number" min="0" value={quantities[app.id][size]} onChange={(e) => handleQuantityChange(app.id, size, e.target.value)} />
-                                </td>
-                              ))}
-                              <td><strong>{computeApparelTotal(app.id)}</strong></td>
-                              <td><strong>{formatGBP(computeApparelPriceTotal(app.id))}</strong></td>
-                            </tr>
-                          ))}
-                        </tbody>
-                        <tfoot>
-                          <tr>
-                            <td style={{ textAlign: 'left' }}>Total per Size</td>
-                            {sizes.map(size => <td key={size}><strong>{computeSizeTotal(size)}</strong></td>)}
-                            <td><strong>{computeOverallTotal()}</strong></td>
-                            <td><strong>{formatGBP(computeGrandPriceTotal())}</strong></td>
-                          </tr>
-                        </tfoot>
-                      </table>
+                    <div className="colors-section">
+                      <h3>Select Required Colours</h3>
+                      <p className="colors-description">Choose the colours you need for this project:</p>
+                      <div className="colors-grid">
+                        {availableColors.map((color) => (
+                          <div 
+                            key={color.id}
+                            className={`color-box ${isColorSelected(color.id) ? 'selected' : ''}`}
+                            onClick={() => toggleColor(color.id)}
+                          >
+                            <div className="color-swatch" style={{ backgroundColor: color.hex }}></div>
+                            <div className="color-label">{color.name}</div>
+                            {isColorSelected(color.id) && (
+                              <div className="color-checkmark">✓</div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
                     </div>
 
-                    <div className="action-buttons">
-                      <button className="btn btn-primary" onClick={sendViaWhatsApp}>Send via WhatsApp</button>
-                      <button className="btn btn-secondary" onClick={resetQuantities}>Reset</button>
+                    {/* New Apparel Selection and Breakdown Section */}
+                    <div className="apparel-selection-section">
+                      <h3>Select Apparel & Build Orders</h3>
+                      <p className="apparel-description">Choose an apparel type below to start building your order with color breakdown:</p>
+                      
+                      <div className="apparel-buttons">
+                        {apparels.map(app => (
+                          <button
+                            key={app.id}
+                            className={`apparel-btn ${selectedApparel === app.id ? 'active' : ''}`}
+                            onClick={() => selectApparel(app.id)}
+                          >
+                            {app.label}
+                            {apparelOrders[app.id] && apparelOrders[app.id].length > 0 && (
+                              <span className="apparel-badge">{getTotalForApparelOrder(app.id)}</span>
+                            )}
+                          </button>
+                        ))}
+                      </div>
+
+                      {/* Breakdown form for selected apparel */}
+                      {selectedApparel && selectedColors.length > 0 && (
+                        <div className="breakdown-form">
+                          <h4>Build {getApparelLabel(selectedApparel)} Order</h4>
+                          <p className="breakdown-description">Enter quantities for each color & size combination:</p>
+                          
+                          <div className="size-type-toggle">
+                            <button 
+                              className={`size-toggle-btn ${sizeType === 'youth' ? 'active' : ''}`}
+                              onClick={() => handleSizeTypeChange('youth')}
+                            >
+                              Youth Sizes
+                            </button>
+                            <button 
+                              className={`size-toggle-btn ${sizeType === 'adult' ? 'active' : ''}`}
+                              onClick={() => handleSizeTypeChange('adult')}
+                            >
+                              Adult Sizes
+                            </button>
+                          </div>
+
+                          {flashMessage && (
+                            <div className={`flash-notification inline-flash ${flashMessage.type}`}>
+                              {flashMessage.text}
+                            </div>
+                          )}
+
+                          {/* Youth Sizes Matrix */}
+                          {sizeType === 'youth' && (
+                            <div className="matrix-table-wrapper">
+                              <table className="matrix-table">
+                                <thead>
+                                  <tr>
+                                    <th>Color / Size</th>
+                                    {youthSizes.map(size => <th key={size}>{size}</th>)}
+                                    <th>Row Total</th>
+                                    <th>Price</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {selectedColors.map(colorId => {
+                                    const colorInfo = availableColors.find(c => c.id === colorId);
+                                    const colorName = colorInfo ? colorInfo.name : colorId;
+                                    const colorHex = colorInfo ? colorInfo.hex : '#000000';
+                                    
+                                    const rowTotal = youthSizes.reduce((sum, size) => {
+                                      const qty = colorSizeBreakdown[colorId] ? colorSizeBreakdown[colorId][size] : 0;
+                                      return sum + Number(qty || 0);
+                                    }, 0);
+
+                                    // Calculate row price by summing each size's price
+                                    const rowPrice = youthSizes.reduce((sum, size) => {
+                                      const qty = colorSizeBreakdown[colorId] ? colorSizeBreakdown[colorId][size] : 0;
+                                      if (qty > 0) {
+                                        const sizePrice = priceFor(selectedApparel, size, printType);
+                                        return sum + (Number(qty) * sizePrice);
+                                      }
+                                      return sum;
+                                    }, 0);
+                                    
+                                    return (
+                                      <tr key={colorId}>
+                                        <td className="color-cell">
+                                          <div className="color-swatch-tiny" style={{ backgroundColor: colorHex }}></div>
+                                          <strong>{colorName}</strong>
+                                        </td>
+                                        {youthSizes.map(size => {
+                                          const qty = colorSizeBreakdown[colorId] ? colorSizeBreakdown[colorId][size] : 0;
+                                          return (
+                                            <td key={size} className="qty-cell">
+                                              <input 
+                                                type="number"
+                                                min="0"
+                                                value={qty}
+                                                onChange={(e) => updateColorSizeQty(colorId, size, e.target.value)}
+                                                className="matrix-qty-input"
+                                              />
+                                            </td>
+                                          );
+                                        })}
+                                        <td className="total-cell"><strong>{rowTotal}</strong></td>
+                                        <td className="price-cell"><strong>{formatGBP(rowPrice)}</strong></td>
+                                      </tr>
+                                    );
+                                  })}
+                                </tbody>
+                                <tfoot>
+                                  <tr>
+                                    <td><strong>Column Total</strong></td>
+                                    {youthSizes.map(size => {
+                                      const colTotal = selectedColors.reduce((sum, colorId) => {
+                                        const qty = colorSizeBreakdown[colorId] ? colorSizeBreakdown[colorId][size] : 0;
+                                        return sum + Number(qty || 0);
+                                      }, 0);
+                                      return <td key={size} className="total-cell"><strong>{colTotal}</strong></td>;
+                                    })}
+                                    <td colSpan="2" className="grand-total-cell">
+                                      <strong>
+                                        {(() => {
+                                          let totalQty = 0;
+                                          let totalPrice = 0;
+                                          selectedColors.forEach(colorId => {
+                                            youthSizes.forEach(size => {
+                                              const qty = colorSizeBreakdown[colorId] ? colorSizeBreakdown[colorId][size] : 0;
+                                              if (qty > 0) {
+                                                const sizePrice = priceFor(selectedApparel, size, printType);
+                                                totalQty += Number(qty);
+                                                totalPrice += Number(qty) * sizePrice;
+                                              }
+                                            });
+                                          });
+                                          return `${totalQty} items = ${formatGBP(totalPrice)}`;
+                                        })()}
+                                      </strong>
+                                    </td>
+                                  </tr>
+                                </tfoot>
+                              </table>
+                            </div>
+                          )}
+
+                          {/* Adult Sizes Matrix */}
+                          {sizeType === 'adult' && (
+                            <div className="matrix-table-wrapper">
+                              <table className="matrix-table">
+                                <thead>
+                                  <tr>
+                                    <th>Color / Size</th>
+                                    {adultSizes.map(size => <th key={size}>{size}</th>)}
+                                    <th>Row Total</th>
+                                    <th>Price</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {selectedColors.map(colorId => {
+                                    const colorInfo = availableColors.find(c => c.id === colorId);
+                                    const colorName = colorInfo ? colorInfo.name : colorId;
+                                    const colorHex = colorInfo ? colorInfo.hex : '#000000';
+                                    
+                                    const rowTotal = adultSizes.reduce((sum, size) => {
+                                      const qty = colorSizeBreakdown[colorId] ? colorSizeBreakdown[colorId][size] : 0;
+                                      return sum + Number(qty || 0);
+                                    }, 0);
+
+                                    // Calculate row price by summing each size's price
+                                    const rowPrice = adultSizes.reduce((sum, size) => {
+                                      const qty = colorSizeBreakdown[colorId] ? colorSizeBreakdown[colorId][size] : 0;
+                                      if (qty > 0) {
+                                        const sizePrice = priceFor(selectedApparel, size, printType);
+                                        return sum + (Number(qty) * sizePrice);
+                                      }
+                                      return sum;
+                                    }, 0);
+                                    
+                                    return (
+                                      <tr key={colorId}>
+                                        <td className="color-cell">
+                                          <div className="color-swatch-tiny" style={{ backgroundColor: colorHex }}></div>
+                                          <strong>{colorName}</strong>
+                                        </td>
+                                        {adultSizes.map(size => {
+                                          const qty = colorSizeBreakdown[colorId] ? colorSizeBreakdown[colorId][size] : 0;
+                                          return (
+                                            <td key={size} className="qty-cell">
+                                              <input 
+                                                type="number"
+                                                min="0"
+                                                value={qty}
+                                                onChange={(e) => updateColorSizeQty(colorId, size, e.target.value)}
+                                                className="matrix-qty-input"
+                                              />
+                                            </td>
+                                          );
+                                        })}
+                                        <td className="total-cell"><strong>{rowTotal}</strong></td>
+                                        <td className="price-cell"><strong>{formatGBP(rowPrice)}</strong></td>
+                                      </tr>
+                                    );
+                                  })}
+                                </tbody>
+                                <tfoot>
+                                  <tr>
+                                    <td><strong>Column Total</strong></td>
+                                    {adultSizes.map(size => {
+                                      const colTotal = selectedColors.reduce((sum, colorId) => {
+                                        const qty = colorSizeBreakdown[colorId] ? colorSizeBreakdown[colorId][size] : 0;
+                                        return sum + Number(qty || 0);
+                                      }, 0);
+                                      return <td key={size} className="total-cell"><strong>{colTotal}</strong></td>;
+                                    })}
+                                    <td colSpan="2" className="grand-total-cell">
+                                      <strong>
+                                        {(() => {
+                                          let totalQty = 0;
+                                          let totalPrice = 0;
+                                          selectedColors.forEach(colorId => {
+                                            adultSizes.forEach(size => {
+                                              const qty = colorSizeBreakdown[colorId] ? colorSizeBreakdown[colorId][size] : 0;
+                                              if (qty > 0) {
+                                                const sizePrice = priceFor(selectedApparel, size, printType);
+                                                totalQty += Number(qty);
+                                                totalPrice += Number(qty) * sizePrice;
+                                              }
+                                            });
+                                          });
+                                          return `${totalQty} items = ${formatGBP(totalPrice)}`;
+                                        })()}
+                                      </strong>
+                                    </td>
+                                  </tr>
+                                </tfoot>
+                              </table>
+                            </div>
+                          )}
+
+                          <div className="breakdown-actions">
+                            <button className="btn btn-primary" onClick={confirmApparelOrder}>
+                              ✓ Confirm {getApparelLabel(selectedApparel)} Order
+                            </button>
+                            <button className="btn btn-secondary" onClick={() => { setSelectedApparel(null); setColorSizeBreakdown({}); setSizeType('youth'); }}>
+                              ✕ Cancel
+                            </button>
+                          </div>
+                        </div>
+                      )}
+
+                      {selectedApparel && selectedColors.length === 0 && (
+                        <div className="no-colors-message">
+                          <p>Please select at least one color above to build an order.</p>
+                        </div>
+                      )}
+
+                      {/* Display confirmed orders */}
+                      {Object.keys(apparelOrders).length > 0 && (
+                        <div className="confirmed-orders">
+                          <h4>Order Summary</h4>
+                          {apparels.map(app => {
+                            const orders = apparelOrders[app.id];
+                            if (!orders || orders.length === 0) return null;
+
+                            return (
+                              <div key={app.id} className="apparel-order-summary">
+                                <div className="order-header">
+                                  <h5>{app.label} ({getTotalForApparelOrder(app.id)} items)</h5>
+                                  <span className="order-price">{formatGBP(getTotalPriceForApparelOrder(app.id))}</span>
+                                </div>
+
+                                {orders.map((order, orderIdx) => {
+                                  const sizeTypeLabel = order.sizeType === 'adult' ? 'Adult' : 'Youth';
+                                  const sizesArray = order.sizeType === 'adult' ? adultSizes : youthSizes;
+                                  const price = order.sizeType === 'adult' ? adultPrices[app.id] : youthPrices[app.id];
+                                  
+                                  let orderQty = 0;
+                                  let orderPrice = 0;
+                                  selectedColors.forEach(colorId => {
+                                    const colorBreakdown = order.colors[colorId];
+                                    if (colorBreakdown) {
+                                      const colorQty = Object.values(colorBreakdown).reduce((a, b) => a + Number(b || 0), 0);
+                                      orderQty += colorQty;
+                                      orderPrice += colorQty * price;
+                                    }
+                                  });
+                                  
+                                  return (
+                                    <div key={orderIdx} className="order-item">
+                                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.8rem' }}>
+                                        <span style={{ fontWeight: 600, color: '#2d5541' }}>[{sizeTypeLabel}] {orderQty} items - {formatGBP(orderPrice)}</span>
+                                        <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                          <button 
+                                            className="btn-edit-order"
+                                            onClick={() => editApparelOrder(app.id, orderIdx)}
+                                            title="Edit this order"
+                                            style={{ padding: '0.4rem 0.8rem', fontSize: '0.85rem', background: '#2d5541', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                                          >
+                                            Edit
+                                          </button>
+                                          <button 
+                                            className="btn-remove-order"
+                                            onClick={() => removeApparelOrder(app.id, orderIdx)}
+                                            title="Remove this order"
+                                          >
+                                            ✕
+                                          </button>
+                                        </div>
+                                      </div>
+                                      <div className="order-colors">
+                                        {selectedColors.map(colorId => {
+                                          const colorBreakdown = order.colors[colorId];
+                                          if (!colorBreakdown) return null;
+                                          
+                                          const colorTotal = Object.values(colorBreakdown).reduce((a, b) => a + Number(b || 0), 0);
+                                          if (colorTotal === 0) return null;
+
+                                          const colorInfo = availableColors.find(c => c.id === colorId);
+                                          const colorName = colorInfo ? colorInfo.name : colorId;
+
+                                          return (
+                                            <div key={colorId} className="color-item" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem', padding: '0.4rem 0', borderBottom: '1px solid #eee' }}>
+                                              <span className="color-name">{colorName}: {colorTotal}</span>
+                                              <span style={{ color: '#666' }}>{formatGBP(colorTotal * price)}</span>
+                                            </div>
+                                          );
+                                        })}
+                                      </div>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
                     </div>
+
+                    {hasConfirmedOrders() && (
+                      <div className="action-buttons">
+                        <button className="btn btn-primary" onClick={sendViaWhatsApp}>Send via WhatsApp</button>
+                        <button className="btn btn-secondary" onClick={resetQuantities}>Reset</button>
+                      </div>
+                    )}
+                    {!hasConfirmedOrders() && (
+                      <div className="action-buttons" style={{ opacity: 0.5, pointerEvents: 'none' }}>
+                        <button className="btn btn-primary" disabled>Send via WhatsApp</button>
+                        <button className="btn btn-secondary" disabled>Reset</button>
+                      </div>
+                    )}
                     <p style={{marginTop: '30px'}}>** Please take note that the total price is indicative only and also does not include delivery cost.</p>
                     <p>** We'll be in touch as soon as we receive your request via the WhatsApp message</p>
 
@@ -551,6 +1411,121 @@
                   <button className="btn btn-primary" onClick={() => setActiveView('quote')}>Get a Quote</button>
                 </div>
               </div>
+            )}
+
+            {activeView === 'contact' && (
+              <section className="enquiry-section">
+                <div className="enquiry-container">
+                  <div className="enquiry-header">
+                    <h2 className="section-title">Get Your Quote</h2>
+                    <p className="section-subtitle">Tell us about your project. We'll respond within 24 hours.</p>
+                  </div>
+
+                  <form className="enquiry-form" onSubmit={(e) => {
+                    e.preventDefault();
+                    const formData = {
+                      fullName: document.getElementById('fullName').value,
+                      email: document.getElementById('email').value,
+                      phone: document.getElementById('phone').value,
+                      projectType: document.getElementById('projectType').value,
+                      quantity: document.getElementById('quantity').value,
+                      budget: document.getElementById('budget').value,
+                      description: document.getElementById('description').value,
+                    };
+                    
+                    const message = `Hi! I'd like to get a quote:\n\nName: ${formData.fullName}\nEmail: ${formData.email}\nPhone: ${formData.phone}\nProject: ${formData.projectType}\nQuantity: ${formData.quantity}\nBudget: ${formData.budget}\nDetails: ${formData.description}`;
+                    window.location.href = `https://wa.me/447911123456?text=${encodeURIComponent(message)}`;
+                  }}>
+                    <div className="form-grid">
+                      <div className="form-group">
+                        <label htmlFor="fullName">Full Name *</label>
+                        <input 
+                          type="text" 
+                          id="fullName" 
+                          name="fullName" 
+                          placeholder="Your name"
+                          required 
+                        />
+                      </div>
+
+                      <div className="form-group">
+                        <label htmlFor="email">Email *</label>
+                        <input 
+                          type="email" 
+                          id="email" 
+                          name="email" 
+                          placeholder="your@email.com"
+                          required 
+                        />
+                      </div>
+
+                      <div className="form-group">
+                        <label htmlFor="phone">Phone Number *</label>
+                        <input 
+                          type="tel" 
+                          id="phone" 
+                          name="phone" 
+                          placeholder="+44 (0)..."
+                          required 
+                        />
+                      </div>
+
+                      <div className="form-group">
+                        <label htmlFor="projectType">What Do You Need? *</label>
+                        <select id="projectType" name="projectType" required>
+                          <option value="">Select an option</option>
+                          <option value="Flyers">Flyers</option>
+                          <option value="Gift Souvenirs">Gift Souvenirs</option>
+                          <option value="Both">Both Flyers & Souvenirs</option>
+                        </select>
+                      </div>
+
+                      <div className="form-group">
+                        <label htmlFor="quantity">Estimated Quantity *</label>
+                        <input 
+                          type="number" 
+                          id="quantity" 
+                          name="quantity" 
+                          placeholder="e.g., 500"
+                          min="1"
+                          required 
+                        />
+                      </div>
+
+                      <div className="form-group">
+                        <label htmlFor="budget">Budget Range (Optional)</label>
+                        <select id="budget" name="budget">
+                          <option value="">Select a range</option>
+                          <option value="£100-500">£100-500</option>
+                          <option value="£500-1000">£500-1,000</option>
+                          <option value="£1000-5000">£1,000-5,000</option>
+                          <option value="£5000+">£5,000+</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div className="form-group full-width">
+                      <label htmlFor="description">Project Details *</label>
+                      <textarea 
+                        id="description" 
+                        name="description" 
+                        placeholder="Tell us about your project: design ideas, preferences, timeline, etc."
+                        rows="5"
+                        required
+                      ></textarea>
+                    </div>
+
+                    <div className="form-consent">
+                      <input type="checkbox" id="consent" name="consent" required />
+                      <label htmlFor="consent">I agree to be contacted about my enquiry</label>
+                    </div>
+
+                    <button type="submit" className="btn btn-primary btn-large submit-btn">
+                      Send Enquiry via WhatsApp
+                    </button>
+                  </form>
+                </div>
+              </section>
             )}
           </main>
 
